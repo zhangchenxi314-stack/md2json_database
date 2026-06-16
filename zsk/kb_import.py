@@ -442,3 +442,109 @@ def import_directory(
         nodes = import_md(md_file, default_category=default_category)
         results[md_file.name] = nodes
     return results
+
+
+# ── 合并导入：多报告整合为统一知识树 ─────────────────────
+
+def import_and_merge(kb, filepath: str | Path,
+                     default_category: str = "") -> dict:
+    """
+    导入 MD 研报并合并到已有知识库。
+    相同 category + title 的节点会合并内容，而非重复创建。
+    报告标题（H1）不作为节点，H2 章节直接成为顶层概念。
+    
+    返回 {"merged": N, "new": N, "skipped": N}
+    """
+    # 用原始 parse 获取章节层级（用于识别 H1 报告标题）
+    filepath = Path(filepath)
+    md_text = filepath.read_text(encoding="utf-8")
+    sections, _ = _parse_headings(md_text)
+    title_to_level: dict[str, int] = {}
+    for sec in sections:
+        title_to_level[sec["title"]] = sec["level"]
+
+    # 提取所有节点
+    nodes = import_md(filepath, default_category=default_category)
+
+    # 拓扑排序：父节点先于子节点处理
+    ordered = _topo_sort(nodes)
+
+    # ID 映射：incoming_id → final_id（merge 后可能是已有节点的 id）
+    id_map: dict[str, str | None] = {}
+    stats = {"merged": 0, "new": 0, "skipped": 0}
+
+    for node in ordered:
+        # 跳过报告标题（H1、无分类、有子节点）
+        sec_level = title_to_level.get(node.source_section, 0)
+        if sec_level == 1 and not node.category and node.children:
+            stats["skipped"] += 1
+            id_map[node.id] = None
+            continue
+
+        # 跳过无分类叶子节点（如"概述"等通用章节）
+        if not node.category and not node.children:
+            stats["skipped"] += 1
+            id_map[node.id] = None
+            continue
+
+        # 重映射 parent_id
+        if node.parent_id and node.parent_id in id_map:
+            mapped = id_map[node.parent_id]
+            if mapped is None:
+                node.parent_id = None
+            else:
+                node.parent_id = mapped
+
+        # 尝试合并
+        existing = kb.find_by_title_category(node.title, node.category) if node.category else None
+        if existing:
+            final_id = kb.merge_node(node)
+            id_map[node.id] = final_id
+            stats["merged"] += 1
+        else:
+            # 全新节点：直接加入 KB
+            kb.nodes[node.id] = node
+            if node.parent_id and node.parent_id in kb.nodes:
+                parent = kb.nodes[node.parent_id]
+                if node.id not in parent.children:
+                    parent.children.append(node.id)
+            id_map[node.id] = node.id
+            stats["new"] += 1
+
+    kb._save()
+    return stats
+
+
+def import_directory_merge(kb, dirpath: str | Path,
+                           default_category: str = "") -> dict:
+    """
+    批量合并导入目录中所有 MD 文件。
+    返回全局统计 {"merged": N, "new": N, "skipped": N}。
+    """
+    dirpath = Path(dirpath)
+    total = {"merged": 0, "new": 0, "skipped": 0}
+    for md_file in sorted(dirpath.glob("*.md")):
+        s = import_and_merge(kb, md_file, default_category=default_category)
+        print(f"  📄 {md_file.name}: 合并 {s['merged']}, 新增 {s['new']}, 跳过 {s['skipped']}")
+        for k in total:
+            total[k] += s[k]
+    return total
+
+
+def _topo_sort(nodes: list) -> list:
+    """按深度排序节点（父节点在前）。"""
+    id_set = {n.id for n in nodes}
+
+    def depth(n):
+        d = 0
+        current = n
+        while current.parent_id and current.parent_id in id_set:
+            d += 1
+            # 找父节点
+            parent = next((x for x in nodes if x.id == current.parent_id), None)
+            if not parent:
+                break
+            current = parent
+        return d
+
+    return sorted(nodes, key=depth)

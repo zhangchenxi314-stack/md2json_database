@@ -192,38 +192,77 @@ def cmd_delete(kb: KnowledgeBase, args):
 
 
 def cmd_import(kb: KnowledgeBase, args):
-    from kb_import import import_md, import_directory
+    from kb_import import import_and_merge, import_directory_merge
 
     filepath = Path(args.path)
-    if filepath.is_dir():
-        results = import_directory(filepath, default_category=args.category or "")
-        total = 0
-        for fname, nodes in results.items():
+
+    if args.no_merge:
+        # 旧模式：每份报告独立成树
+        from kb_import import import_md, import_directory
+        if filepath.is_dir():
+            results = import_directory(filepath, default_category=args.category or "")
+            total = 0
+            for fname, nodes in results.items():
+                if not args.dry_run:
+                    for n in nodes:
+                        kb.add(n)
+                print(f"  📄 {fname}: {len(nodes)} 个知识点")
+                total += len(nodes)
+            action = "将导入" if args.dry_run else "已导入"
+            print(f"\n📦 {action} {len(results)} 个文件，共 {total} 个知识点（独立模式）")
+        else:
+            nodes = import_md(filepath, default_category=args.category or "")
             if not args.dry_run:
                 for n in nodes:
                     kb.add(n)
-            print(f"  📄 {fname}: {len(nodes)} 个知识点")
-            total += len(nodes)
-        action = "将导入" if args.dry_run else "已导入"
-        print(f"\n📦 {action} {len(results)} 个文件，共 {total} 个知识点")
-    elif filepath.is_file():
-        nodes = import_md(filepath, default_category=args.category or "")
-        if not args.dry_run:
+            action = "将导入" if args.dry_run else "已导入"
+            print(f"📄 {filepath.name}: {action} {len(nodes)} 个知识点（独立模式）\n")
             for n in nodes:
-                kb.add(n)
-        action = "将导入" if args.dry_run else "已导入"
-        print(f"📄 {filepath.name}: {action} {len(nodes)} 个知识点\n")
-        for n in nodes:
-            cat = ONTOLOGY.get(n.category, {}).get("label", n.category) if n.category else "-"
-            print(f"  {'⭐' * n.priority} [{cat}] {n.title}")
-            if n.children:
-                print(f"     └─ 子节点: {', '.join(n.children)}")
-            print()
+                cat = ONTOLOGY.get(n.category, {}).get("label", n.category) if n.category else "-"
+                print(f"  {'⭐' * n.priority} [{cat}] {n.title}")
+                print()
     else:
-        print(f"❌ 路径不存在: {args.path}")
+        # 默认：合并模式
+        if args.dry_run:
+            from kb_import import import_md
+            if filepath.is_dir():
+                for md_file in sorted(filepath.glob("*.md")):
+                    nodes = import_md(md_file, default_category=args.category or "")
+                    print(f"  📄 {md_file.name}: 预览 {len(nodes)} 个节点（将合并入已有知识树）")
+            else:
+                nodes = import_md(filepath, default_category=args.category or "")
+                print(f"📄 {filepath.name}: 预览 {len(nodes)} 个节点（将合并入已有知识树）\n")
+                # 获取章节层级以识别 H1
+                from kb_import import _parse_headings
+                sections, _ = _parse_headings(Path(filepath).read_text(encoding="utf-8"))
+                title_to_level = {s["title"]: s["level"] for s in sections}
+                for n in nodes:
+                    cat = ONTOLOGY.get(n.category, {}).get("label", n.category) if n.category else "-"
+                    sec_level = title_to_level.get(n.source_section, 0)
+                    if sec_level == 1 and not n.category and n.children:
+                        action = "跳过"
+                    elif not n.category and not n.children:
+                        action = "跳过"
+                    elif n.category and kb.find_by_title_category(n.title, n.category):
+                        action = "合并"
+                    else:
+                        action = "新增"
+                    print(f"  {action:4s} {'⭐' * n.priority} [{cat:6s}] {n.title}")
+                print()
+            print("⚠ 试运行模式。去掉 --dry-run 确认导入。")
+        else:
+            if filepath.is_dir():
+                stats = import_directory_merge(kb, filepath, default_category=args.category or "")
+            else:
+                stats = import_and_merge(kb, filepath, default_category=args.category or "")
+                print(f"📄 {filepath.name}: 合并 {stats['merged']}, 新增 {stats['new']}, 跳过 {stats['skipped']}")
+                print()
 
-    if args.dry_run:
-        print("\n⚠ 试运行模式，未实际写入。去掉 --dry-run 确认导入。")
+    if args.dry_run and not args.no_merge:
+        print("⚠ 试运行模式，未实际写入。去掉 --dry-run 确认导入。")
+
+    if not filepath.exists():
+        print(f"❌ 路径不存在: {args.path}")
 
 
 def cmd_export(kb: KnowledgeBase, args):
@@ -345,8 +384,8 @@ python3 {PROJECT_DIR}/kb.py export
 
 
 def _interactive_import(kb: KnowledgeBase, args):
-    """交互式导入：先预览，逐条确认。"""
-    from kb_import import import_md
+    """交互式导入：先预览，逐条确认（默认合并模式）。"""
+    from kb_import import import_md, import_and_merge
 
     filepath = Path(args.path)
     if not filepath.is_file():
@@ -358,30 +397,44 @@ def _interactive_import(kb: KnowledgeBase, args):
         print("未提取到知识点。")
         return
 
-    print(f"\n📄 {filepath.name} → 提取到 {len(nodes)} 个知识点:\n")
+    print(f"\n📄 {filepath.name} → 提取到 {len(nodes)} 个节点（将合并入已有知识树）:\n")
     for i, n in enumerate(nodes, 1):
         cat = ONTOLOGY.get(n.category, {}).get("label", n.category) if n.category else "-"
-        print(f"  [{i}] {'⭐' * n.priority} [{cat}] {n.title}")
+        existing = kb.find_by_title_category(n.title, n.category) if n.category else None
+        action = "合并" if existing else "新增"
+        print(f"  [{i}] {action:4s} {'⭐' * n.priority} [{cat}] {n.title}")
         if n.abstract:
             print(f"      {n.abstract[:100]}")
         print()
 
     while True:
-        resp = input("导入全部？[Y]es / [n]o 逐条选择 / [q]uit: ").strip().lower()
+        resp = input("导入全部（合并模式）？[Y]es / [n]o 逐条选择 / [q]uit: ").strip().lower()
         if resp in ("", "y", "yes"):
-            for n in nodes:
-                kb.add(n)
-            print(f"✅ 已导入 {len(nodes)} 个知识点")
+            stats = import_and_merge(kb, filepath, default_category=args.category or "")
+            print(f"✅ 合并 {stats['merged']}, 新增 {stats['new']}, 跳过 {stats['skipped']}")
             return
         elif resp in ("n", "no"):
-            selected = []
+            selected_ids = []
             for i, n in enumerate(nodes, 1):
                 ans = input(f"  导入 [{i}] {n.title}? [y/N]: ").strip().lower()
                 if ans in ("y", "yes"):
-                    selected.append(n)
-            for n in selected:
-                kb.add(n)
-            print(f"✅ 已导入 {len(selected)}/{len(nodes)} 个知识点")
+                    selected_ids.append(n.id)
+            # 只合并选中的节点
+            for n in nodes:
+                if n.id not in selected_ids:
+                    continue
+                existing = kb.find_by_title_category(n.title, n.category) if n.category else None
+                if existing:
+                    kb.merge_node(n)
+                    print(f"  已合并: {n.title}")
+                else:
+                    kb.nodes[n.id] = n
+                    if n.parent_id and n.parent_id in kb.nodes:
+                        if n.id not in kb.nodes[n.parent_id].children:
+                            kb.nodes[n.parent_id].children.append(n.id)
+                    print(f"  已新增: {n.title}")
+            kb._save()
+            print(f"✅ 完成")
             return
         elif resp in ("q", "quit"):
             print("已取消")
@@ -465,11 +518,12 @@ def main():
     p.add_argument("--cascade", action="store_true", help="级联删除子节点")
 
     # import
-    p = sub.add_parser("import", help="从 MD 研报导入")
+    p = sub.add_parser("import", help="从 MD 研报导入（默认合并模式）")
     p.add_argument("path", help="MD 文件或目录")
     p.add_argument("--category", "-c", help="默认分类")
     p.add_argument("--dry-run", action="store_true", help="试运行（不写入）")
     p.add_argument("--interactive", "-i", action="store_true", help="交互式逐条确认")
+    p.add_argument("--no-merge", action="store_true", help="禁用合并：每份报告独立成树")
 
     # export
     p = sub.add_parser("export", help="导出 HTML")

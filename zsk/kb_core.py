@@ -126,6 +126,65 @@ class KnowledgeBase:
     def filter_by_category(self, cat_id: str) -> list[KnowledgeNode]:
         return [n for n in self.nodes.values() if n.category == cat_id]
 
+    def find_by_title_category(self, title: str, category: str) -> KnowledgeNode | None:
+        """按标题+分类查找已有节点（用于合并去重）。"""
+        title_lower = title.strip().lower()
+        for node in self.nodes.values():
+            if node.title.strip().lower() == title_lower and node.category == category:
+                return node
+        return None
+
+    def merge_node(self, incoming: KnowledgeNode) -> str:
+        """
+        合并节点：如果 KB 中已有同 category + title 的节点，则合并内容；
+        否则直接新增。返回最终的 node_id。
+        """
+        existing = self.find_by_title_category(incoming.title, incoming.category)
+        if existing:
+            # ── 合并到已有节点 ──
+            if incoming.content and incoming.content not in existing.content:
+                existing.content += f"\n\n---\n\n{incoming.content}"
+
+            existing.abstract = incoming.abstract or existing.abstract
+
+            # 取更高优先级（数字越小越高）
+            if incoming.priority < existing.priority:
+                existing.priority = incoming.priority
+
+            # 合并标签（去重）
+            for t in incoming.tags:
+                if t not in existing.tags:
+                    existing.tags.append(t)
+
+            # 合并来源文件
+            if incoming.source_file and incoming.source_file not in existing.source_file:
+                existing.source_file += f", {incoming.source_file}"
+
+            # 合并参考文献（去重）
+            for r in incoming.references:
+                if r not in existing.references:
+                    existing.references.append(r)
+
+            # 合并子节点
+            for child_id in incoming.children:
+                if child_id not in existing.children:
+                    existing.children.append(child_id)
+
+            # 更新 L2 分类（如果原来没有）
+            if not existing.l2_category and incoming.l2_category:
+                existing.l2_category = incoming.l2_category
+
+            existing.updated_at = incoming.updated_at
+            return existing.id
+        else:
+            # ── 全新节点 ──
+            self.nodes[incoming.id] = incoming
+            if incoming.parent_id and incoming.parent_id in self.nodes:
+                parent = self.nodes[incoming.parent_id]
+                if incoming.id not in parent.children:
+                    parent.children.append(incoming.id)
+            return incoming.id
+
     def filter_by_priority(self, level: int) -> list[KnowledgeNode]:
         return [n for n in self.nodes.values() if n.priority == level]
 

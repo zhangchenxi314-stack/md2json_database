@@ -66,11 +66,11 @@
 | 模块 | 职责 | 行数 |
 |------|------|------|
 | `kb_ontology.py` | 8 分类定义、优先级配置、标签规范、章节→分类映射 | 178 |
-| `kb_core.py` | KnowledgeNode 数据类、KnowledgeBase CRUD 管理器 | 282 |
-| `kb_import.py` | MD 解析（代码块安全）、自动分类/优先级/标签、混合模式 | 444 |
+| `kb_core.py` | KnowledgeNode 数据类、KnowledgeBase CRUD + find/merge 方法 | 341 |
+| `kb_import.py` | MD 解析（代码块安全）、自动分类/优先级/标签、合并导入 | 550 |
 | `kb_export.py` | 单文件 HTML 生成（CSS + vanilla JS，零外部 JS 依赖） | 468 |
-| `kb.py` | argparse CLI 入口，12 个子命令（含 setup） | 510 |
-| **总计** | | **1882** |
+| `kb.py` | argparse CLI 入口，12 个子命令（含 setup、合并导入） | 564 |
+| **总计** | | **2101** |
 
 ---
 
@@ -192,7 +192,36 @@ for node in nodes:
 - **Markdown 渲染**：Python 侧用 `markdown` 库预渲染为 HTML，嵌入页面
 - **响应式**：移动端自动切换为上下布局
 
-### 5.5 跨机器可移植性
+### 5.5 多报告合并导入
+
+**问题**：多份相关研报导入后各自独立成树，相同概念（如两份报告中都有"记忆系统"）被拆成两棵独立的树，无法按最大概念统一展开。
+
+**解决**：默认合并模式。导入时按 `category + title` 匹配已有节点：
+
+- **命中** → 合并内容（追加正文、标签取并集、优先级取最高、子节点去重、来源文件拼接）
+- **未命中** → 创建新节点
+- **报告标题（H1）** → 跳过，不作为节点
+- **无分类叶子节点**（如"概述"）→ 跳过
+
+测试：两份研报导入，概念树从 37 节点（独立模式）压缩为 19 节点（合并模式），结构正确。
+
+```
+报告 1: agent-tech-2024.md (20 节点)
+报告 2: agent-memory-rag-deep.md (13 节点)
+       ↓ 合并模式
+统一知识树: 19 节点 (合并 10, 新增 1, 跳过 4)
+       ↓ 概念层级
+RAG 检索增强生成（根节点）
+├── 分块策略      ← 来自两份报告，已合并
+├── 检索与重排序   ← 来自报告 1
+└── 检索策略      ← 来自报告 2，新增
+记忆系统（根节点）
+├── 短期记忆      ← 来自两份报告，已合并
+├── 长期记忆      ← 来自两份报告，已合并
+└── 记忆整合策略   ← 来自两份报告，已合并
+```
+
+### 5.6 跨机器可移植性
 
 **问题**：项目最初依赖 `cd` 到特定目录才能运行，skill 写了硬编码路径，搬到别的机器无法直接用。
 
@@ -290,14 +319,16 @@ AI Agent 技术研报 (H1)
 
 | 命令 | 结果 |
 |------|------|
-| `python3 kb.py list` | ✅ 列出 20 个节点 |
+| `python3 kb.py list` | ✅ 列出 19 个节点 |
 | `python3 kb.py list --category memory` | ✅ 筛选 4 个节点 |
 | `python3 kb.py search "ReAct"` | ✅ 命中"规划与决策" |
-| `python3 kb.py show memory-记忆系统` | ✅ 完整展示详情 |
+| `python3 kb.py show memory-记忆系统` | ✅ 完整展示详情，来源显示 2 个文件 |
 | `python3 kb.py stats` | ✅ 统计面板正确 |
 | `python3 kb.py export` | ✅ HTML 生成成功 |
 | `python3 kb.py setup` | ✅ Skill 注册到 ~/.hermes/skills/ |
 | `cd /tmp && python3 /Users/zcx/project/zsk/kb.py stats` | ✅ 任意目录调用正常 |
+| `python3 kb.py import report2.md --dry-run` | ✅ 预览正确标示 合并/新增/跳过 |
+| `python3 kb.py import report2.md` | ✅ 合并 10, 新增 1, 跳过 2 |
 
 ---
 

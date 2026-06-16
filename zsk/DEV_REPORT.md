@@ -9,6 +9,7 @@
 | 开发日期 | 2026-06-16 |
 | Python 版本 | 3.9+ |
 | 外部依赖 | 仅 `markdown` 一个（纯 Python，无 C 扩展） |
+| 可移植性 | 复制到任意目录，`python3 kb.py setup` 一键注册到 Hermes Agent |
 
 ---
 
@@ -49,7 +50,7 @@
 ┌─────────────────────────────────────────────────────┐
 │                     kb.py (CLI)                      │
 │  list | search | show | stats | add | edit | delete  │
-│              import | export                         │
+│              import | export | setup                 │
 ├──────────┬──────────┬──────────┬────────────────────┤
 │ kb_core  │kb_import │kb_export │  kb_ontology        │
 │ 数据模型  │ MD 解析   │ HTML 生成 │  分类/标签/优先级    │
@@ -64,12 +65,12 @@
 
 | 模块 | 职责 | 行数 |
 |------|------|------|
-| `kb_ontology.py` | 8 分类定义、优先级配置、标签规范、章节→分类映射 | ~180 |
-| `kb_core.py` | KnowledgeNode 数据类、KnowledgeBase CRUD 管理器 | ~260 |
-| `kb_import.py` | MD 解析（代码块安全）、自动分类/优先级/标签、混合模式 | ~410 |
-| `kb_export.py` | 单文件 HTML 生成（CSS + vanilla JS，零外部 JS 依赖） | ~370 |
-| `kb.py` | argparse CLI 入口，11 个子命令 | ~310 |
-| **总计** | | **~1530** |
+| `kb_ontology.py` | 8 分类定义、优先级配置、标签规范、章节→分类映射 | 178 |
+| `kb_core.py` | KnowledgeNode 数据类、KnowledgeBase CRUD 管理器 | 282 |
+| `kb_import.py` | MD 解析（代码块安全）、自动分类/优先级/标签、混合模式 | 444 |
+| `kb_export.py` | 单文件 HTML 生成（CSS + vanilla JS，零外部 JS 依赖） | 468 |
+| `kb.py` | argparse CLI 入口，12 个子命令（含 setup） | 510 |
+| **总计** | | **1882** |
 
 ---
 
@@ -191,6 +192,25 @@ for node in nodes:
 - **Markdown 渲染**：Python 侧用 `markdown` 库预渲染为 HTML，嵌入页面
 - **响应式**：移动端自动切换为上下布局
 
+### 5.5 跨机器可移植性
+
+**问题**：项目最初依赖 `cd` 到特定目录才能运行，skill 写了硬编码路径，搬到别的机器无法直接用。
+
+**解决**：
+
+1. **路径自感知** — `PROJECT_DIR = Path(__file__).resolve().parent` 在模块加载时计算，无论从哪个目录调用，所有内部路径（data/、output/）均以 `PROJECT_DIR` 为根。
+
+2. **`setup` 命令** — 一键注册。运行 `python3 /any/path/zsk/kb.py setup` 自动生成 `~/.hermes/skills/note-taking/zsk-knowledge-base/SKILL.md`，其中的所有路径替换为当前机器的实际绝对路径。
+
+**移植流程**：
+
+```
+新机器上:
+  cp -r zsk/ /opt/tools/
+  pip3 install markdown
+  python3 /opt/tools/zsk/kb.py setup    ← 完成，agent 即可使用
+```
+
 核心交互：
 
 ```
@@ -276,58 +296,69 @@ AI Agent 技术研报 (H1)
 | `python3 kb.py show memory-记忆系统` | ✅ 完整展示详情 |
 | `python3 kb.py stats` | ✅ 统计面板正确 |
 | `python3 kb.py export` | ✅ HTML 生成成功 |
+| `python3 kb.py setup` | ✅ Skill 注册到 ~/.hermes/skills/ |
+| `cd /tmp && python3 /Users/zcx/project/zsk/kb.py stats` | ✅ 任意目录调用正常 |
 
 ---
 
 ## 七、使用指南
 
-### 7.1 首次使用
+### 7.1 在新机器上部署
 
 ```bash
-cd /Users/zcx/project/zsk
+# 1. 复制项目到任意目录
+cp -r zsk/ /path/to/anywhere/
 
-# 1. 安装唯一依赖
+# 2. 安装唯一依赖
 pip3 install markdown
 
-# 2. 放入研报到 reports/ 目录
-cp /path/to/your/report.md reports/
+# 3. 注册到 Hermes Agent（自动生成 skill，写入绝对路径）
+python3 /path/to/anywhere/zsk/kb.py setup
 
-# 3. 试运行导入（先看效果）
-python3 kb.py import reports/ --dry-run
-
-# 4. 确认后正式导入
-python3 kb.py import reports/
-
-# 5. 查看统计
-python3 kb.py stats
-
-# 6. 导出可视化
-python3 kb.py export
-
-# 7. 在浏览器中打开
-open output/knowledge_base.html
+# 4. 完成。现在可以直接用自然语言命令 agent：
+#    「搜索知识库里关于 MCP 的内容」
+#    「导入这篇研报到知识库」
+#    「导出知识库可视化」
 ```
 
-### 7.2 日常维护
+**无需 cd 到项目目录** — `PROJECT_DIR` 在模块加载时通过 `Path(__file__).resolve().parent` 自动计算，所有内部路径（data/、output/）均以项目根为基准。
+
+### 7.2 首次导入研报
+
+```bash
+# 1. 放入研报到 reports/ 目录
+cp /path/to/your/report.md /path/to/zsk/reports/
+
+# 2. 试运行导入（先看效果）
+python3 /path/to/zsk/kb.py import /path/to/zsk/reports/ --dry-run
+
+# 3. 确认后正式导入
+python3 /path/to/zsk/kb.py import /path/to/zsk/reports/
+
+# 4. 导出可视化
+python3 /path/to/zsk/kb.py export
+```
+
+### 7.3 日常维护
 
 ```bash
 # 搜索
-python3 kb.py search "MCP"
+python3 /path/to/zsk/kb.py search "MCP"
 
 # 手动添加节点
-python3 kb.py add --title "新知识点" --category tool-calling --priority 2
+python3 /path/to/zsk/kb.py add --title "新知识点" --category tool-calling --priority 2
 
 # 编辑节点
-python3 kb.py edit <id> --priority 1 --tags "mcp,anthropic"
+python3 /path/to/zsk/kb.py edit <id> --priority 1 --tags "mcp,anthropic"
 
 # 删除节点（级联删除子节点）
-python3 kb.py delete <id> --cascade
+python3 /path/to/zsk/kb.py delete <id> --cascade
 
 # 重新导出 HTML
-python3 kb.py export
+python3 /path/to/zsk/kb.py export
 ```
 
-### 7.3 手动标注增强
+### 7.4 手动标注增强
 
 在 MD 研报中插入标注以覆盖自动识别：
 

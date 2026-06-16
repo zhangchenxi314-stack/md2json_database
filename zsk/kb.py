@@ -22,6 +22,9 @@ from pathlib import Path
 from kb_core import KnowledgeBase, KnowledgeNode
 from kb_ontology import ONTOLOGY, PRIORITY_LEVELS, PREDEFINED_TAGS
 
+# 项目根目录 — 始终是 kb.py 所在目录，无论从何处调用
+PROJECT_DIR = Path(__file__).resolve().parent
+
 
 def cmd_list(kb: KnowledgeBase, args):
     nodes = kb.list_all()
@@ -226,10 +229,119 @@ def cmd_import(kb: KnowledgeBase, args):
 def cmd_export(kb: KnowledgeBase, args):
     from kb_export import export_html
 
-    output = Path(args.output or "output/knowledge_base.html")
+    output = Path(args.output) if args.output else (PROJECT_DIR / "output" / "knowledge_base.html")
     out_path = export_html(kb, output)
     print(f"✅ HTML 已导出: {out_path.resolve()}")
     print(f"   可在浏览器中打开查看")
+
+
+def cmd_setup(kb: KnowledgeBase, args):
+    """在新机器上注册此知识库到 Hermes Agent。"""
+    skill_dir = Path.home() / ".hermes" / "skills" / "note-taking" / "zsk-knowledge-base"
+    skill_dir.mkdir(parents=True, exist_ok=True)
+
+    skill_content = f"""---
+name: zsk-knowledge-base
+description: "Use when the user asks to search, query, import, or manage the Agent 技术知识库 (zsk). A local Markdown-report → JSON knowledge base with CLI at {PROJECT_DIR}/kb.py."
+version: 1.0.0
+author: Hermes Agent
+license: MIT
+metadata:
+  hermes:
+    tags: [knowledge-base, ontology, agent-tech, markdown, json]
+    related_skills: [obsidian, llm-wiki]
+---
+
+# ZSK — Agent 开发技术知识库
+
+## Overview
+
+zsk is a local knowledge base built from Markdown research reports about Agent development technology.
+Reports are parsed into structured JSON nodes organized by an 8-category ontology.
+
+**Project directory**: `{PROJECT_DIR}`
+**CLI entry**: `python3 {PROJECT_DIR}/kb.py`
+**Data file**: `{PROJECT_DIR}/data/knowledge_base.json`
+**Reports dir**: `{PROJECT_DIR}/reports/`
+**HTML output**: `{PROJECT_DIR}/output/knowledge_base.html`
+
+## When to Use
+
+- User asks to search the knowledge base: "搜索知识库", "find xxx in kb"
+- User wants to import new reports: "导入研报", "把这篇加到知识库"
+- User wants stats or overview: "知识库有多少节点"
+- User wants the HTML visualization: "导出可视化", "open the kb"
+- User wants to add/edit/delete nodes: "加一个知识点", "修改 xxx"
+
+## Key Commands
+
+All commands use absolute paths — no `cd` needed.
+
+```bash
+python3 {PROJECT_DIR}/kb.py search "<keyword>"
+python3 {PROJECT_DIR}/kb.py list
+python3 {PROJECT_DIR}/kb.py list --category rag
+python3 {PROJECT_DIR}/kb.py list --priority 1
+python3 {PROJECT_DIR}/kb.py show <node_id>
+python3 {PROJECT_DIR}/kb.py stats
+```
+
+### Import Reports
+
+```bash
+# Always dry-run first
+python3 {PROJECT_DIR}/kb.py import <path/to/report.md> --dry-run
+
+# Interactive (recommended)
+python3 {PROJECT_DIR}/kb.py import <path/to/report.md> -i
+
+# Direct import
+python3 {PROJECT_DIR}/kb.py import <path/to/report.md>
+```
+
+### Export
+
+```bash
+python3 {PROJECT_DIR}/kb.py export
+# Then open {PROJECT_DIR}/output/knowledge_base.html in browser
+```
+
+## Workflows
+
+### User asks a knowledge question
+
+1. `python3 {PROJECT_DIR}/kb.py search "<keywords>"`
+2. If hits, show details with `python3 {PROJECT_DIR}/kb.py show <id>`
+3. Synthesize answer from KB content
+4. If no hits, tell user KB doesn't cover it
+
+### User wants to import reports
+
+1. `python3 {PROJECT_DIR}/kb.py stats` — check current state
+2. `python3 {PROJECT_DIR}/kb.py import <path> --dry-run` — preview
+3. Show user extracted nodes (categories, priorities, structure)
+4. Only run real import after user confirms
+
+### User wants visualization
+
+1. `python3 {PROJECT_DIR}/kb.py export` — re-export latest
+2. Tell user to open the HTML file in browser
+
+## Common Pitfalls
+
+1. **Use `python3`, not `python`.** macOS `python` may not exist.
+2. **Always dry-run before import.** Preview extracted nodes first.
+3. **Missing `markdown` dependency.** If export fails: `pip3 install markdown`.
+4. **Importing same file twice creates duplicates.** Search first to check.
+"""
+
+    skill_md = skill_dir / "SKILL.md"
+    skill_md.write_text(skill_content, encoding="utf-8")
+
+    print(f"✅ Skill 已注册到: {skill_md}")
+    print()
+    print(f"   Hermes Agent 现在可以通过自然语言使用知识库。")
+    print(f"   试试在新会话中说：「搜索知识库里有什么」")
 
 
 def _interactive_import(kb: KnowledgeBase, args):
@@ -363,16 +475,16 @@ def main():
     p = sub.add_parser("export", help="导出 HTML")
     p.add_argument("--output", "-o", help="输出路径，默认 output/knowledge_base.html")
 
+    # setup
+    sub.add_parser("setup", help="在新机器上注册此知识库到 Hermes Agent")
+
     args = parser.parse_args()
 
     if not args.command:
         parser.print_help()
         return
 
-    # 项目根目录 = 脚本所在目录的父目录（如果脚本在 src/ 下则为脚本目录）
-    script_dir = Path(__file__).resolve().parent
-
-    kb = KnowledgeBase(script_dir / "data" / "knowledge_base.json")
+    kb = KnowledgeBase(PROJECT_DIR / "data" / "knowledge_base.json")
 
     commands = {
         "list": cmd_list,
@@ -384,6 +496,7 @@ def main():
         "delete": cmd_delete,
         "import": cmd_import,
         "export": cmd_export,
+        "setup": cmd_setup,
     }
 
     if args.command in commands:

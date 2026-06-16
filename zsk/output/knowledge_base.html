@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 开发技术知识库</title>
+<style>
+/* ── 全局 ──────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", sans-serif;
+    background: #f8f9fa; color: #333; line-height: 1.6;
+    display: flex; flex-direction: column; height: 100vh;
+}
+
+/* ── 顶栏 ──────────────────────────────────────── */
+#toolbar {
+    background: #fff; border-bottom: 1px solid #e0e0e0;
+    padding: 12px 20px; display: flex; gap: 12px; align-items: center;
+    flex-shrink: 0; flex-wrap: wrap;
+}
+#toolbar h1 { font-size: 18px; color: #1a73e8; margin-right: 16px; white-space: nowrap; }
+#search { flex: 1; min-width: 200px; max-width: 400px;
+    padding: 8px 14px; border: 1px solid #ddd; border-radius: 20px;
+    font-size: 14px; outline: none; transition: border .2s;
+}
+#search:focus { border-color: #1a73e8; }
+.stats-badge {
+    font-size: 12px; padding: 4px 10px; border-radius: 12px;
+    background: #e8f0fe; color: #1a73e8; white-space: nowrap;
+}
+#priority-legend {
+    display: flex; gap: 8px; align-items: center; font-size: 12px; flex-wrap: wrap;
+}
+.legend-dot {
+    width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+    margin-right: 3px;
+}
+
+/* ── 主体布局 ────────────────────────────────────── */
+#main { display: flex; flex: 1; overflow: hidden; }
+#sidebar {
+    width: 360px; min-width: 280px; background: #fff;
+    border-right: 1px solid #e0e0e0; overflow-y: auto;
+    display: flex; flex-direction: column;
+}
+#detail {
+    flex: 1; overflow-y: auto; padding: 24px 32px; background: #fafbfc;
+}
+
+/* ── 侧栏树 ──────────────────────────────────────── */
+#tree-header {
+    padding: 10px 16px; font-size: 13px; color: #666;
+    border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;
+}
+#tree { padding: 4px 0; }
+
+.tree-node { user-select: none; }
+.tree-row {
+    display: flex; align-items: center; padding: 6px 12px 6px 4px;
+    cursor: pointer; border-left: 3px solid transparent;
+    transition: background .15s, border-color .15s;
+}
+.tree-row:hover { background: #f0f4ff; }
+.tree-row.active { background: #e8f0fe; border-left-color: #1a73e8; }
+.tree-row.hidden { display: none; }
+
+.toggle {
+    width: 20px; height: 20px; display: inline-flex; align-items: center;
+    justify-content: center; font-size: 10px; color: #999; flex-shrink: 0;
+    cursor: pointer; border-radius: 4px; transition: background .15s;
+}
+.toggle:hover { background: #e0e0e0; }
+.toggle.leaf { visibility: hidden; }
+
+.priority-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    margin: 0 6px 0 2px;
+}
+.node-title { font-size: 13px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.node-tags { display: flex; gap: 4px; margin-left: 6px; flex-shrink: 0; }
+.node-tag {
+    font-size: 10px; padding: 1px 6px; border-radius: 8px;
+    background: #f0f0f0; color: #888; white-space: nowrap;
+}
+
+/* ── 详情面板 ──────────────────────────────────────── */
+#detail-empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; color: #bbb;
+}
+#detail-empty .icon { font-size: 64px; margin-bottom: 16px; }
+
+#detail-content { display: none; }
+#detail-content.show { display: block; }
+
+.detail-header { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
+.detail-header h2 { font-size: 22px; margin-bottom: 8px; }
+.detail-meta {
+    display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #888;
+    align-items: center;
+}
+.detail-meta .badge {
+    padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 500;
+}
+.detail-abstract {
+    background: #f0f7ff; border-left: 3px solid #1a73e8;
+    padding: 12px 16px; margin-bottom: 20px; border-radius: 0 6px 6px 0;
+    font-size: 14px; color: #555;
+}
+
+/* ── Markdown 渲染 ─────────────────────────────────── */
+.md-content { font-size: 15px; }
+.md-content h1 { font-size: 24px; margin: 24px 0 12px; color: #222; }
+.md-content h2 { font-size: 20px; margin: 20px 0 10px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+.md-content h3 { font-size: 17px; margin: 16px 0 8px; color: #444; }
+.md-content h4, .md-content h5, .md-content h6 { font-size: 15px; margin: 12px 0 6px; color: #555; }
+.md-content p { margin: 8px 0; }
+.md-content ul, .md-content ol { margin: 8px 0; padding-left: 24px; }
+.md-content li { margin: 4px 0; }
+.md-content code {
+    background: #f0f0f0; padding: 2px 6px; border-radius: 3px;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace; font-size: 13px;
+}
+.md-content pre {
+    background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px;
+    overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.5;
+}
+.md-content pre code {
+    background: none; padding: 0; color: inherit; font-size: inherit;
+}
+.md-content table {
+    border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px;
+}
+.md-content th, .md-content td {
+    border: 1px solid #ddd; padding: 8px 12px; text-align: left;
+}
+.md-content th { background: #f5f7fa; font-weight: 600; }
+.md-content tr:hover { background: #fafbfc; }
+.md-content blockquote {
+    border-left: 4px solid #ddd; padding: 8px 16px; margin: 12px 0;
+    color: #666; background: #f9f9f9; border-radius: 0 6px 6px 0;
+}
+.md-content a { color: #1a73e8; text-decoration: none; }
+.md-content a:hover { text-decoration: underline; }
+.md-content hr { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+.md-content img { max-width: 100%; border-radius: 6px; }
+
+/* ── 引用列表 ──────────────────────────────────────── */
+.refs-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; }
+.refs-section h4 { font-size: 14px; color: #888; margin-bottom: 8px; }
+.ref-item { font-size: 13px; color: #777; margin: 4px 0; padding-left: 12px; border-left: 2px solid #eee; }
+
+/* ── 响应式 ────────────────────────────────────────── */
+@media (max-width: 768px) {
+    #main { flex-direction: column; }
+    #sidebar { width: 100%; max-height: 40vh; border-right: none; border-bottom: 1px solid #e0e0e0; }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<div id="toolbar">
+    <h1>🧠 Agent 开发技术知识库</h1>
+    <input id="search" type="text" placeholder="搜索知识点…" oninput="filterTree()">
+    <span class="stats-badge" id="stats-count"></span>
+    <span class="stats-badge" id="stats-depth"></span>
+    <div id="priority-legend"></div>
+</div>
+
+<!-- 主体 -->
+<div id="main">
+    <div id="sidebar">
+        <div id="tree-header">
+            <span>📂 知识树</span>
+            <span style="cursor:pointer" onclick="collapseAll()" title="全部折叠">⊟</span>
+        </div>
+        <div id="tree"></div>
+    </div>
+    <div id="detail">
+        <div id="detail-empty">
+            <div class="icon">📖</div>
+            <p>点击左侧知识点查看详情</p>
+        </div>
+        <div id="detail-content"></div>
+    </div>
+</div>
+
+<script>
+// ── 数据 ───────────────────────────────────────────
+const DATA = {"tree": [{"id": "ai-agent-技术研报-2024年核心能力与框架演进", "title": "AI Agent 技术研报：2024年核心能力与框架演进", "abstract": "", "content_html": "", "priority": 1, "priority_label": "核心基础", "priority_color": "#d32f2f", "priority_bg": "#ffebee", "tags": [], "category": "", "category_label": "", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "AI Agent 技术研报：2024年核心能力与框架演进", "references": ["[1] Yao et al., \"ReAct: Synergizing Reasoning and Acting in Language Models\", ICLR 2023", "[2] Anthropic, \"Model Context Protocol Specification\", 2024", "[3] Lewis et al., \"Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks\", NeurIPS 2020", "[4] Wang et al., \"Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought\", 2023", "[5] Chase, H., \"LangChain: Building Applications with LLMs through Composability\", 2023"], "children": [{"id": "概述", "title": "概述", "abstract": "本研报系统梳理了2024年AI Agent开发的核心技术栈，涵盖能力要素、主流框架、", "content_html": "<p>本研报系统梳理了2024年AI Agent开发的核心技术栈，涵盖能力要素、主流框架、\n工具调用、RAG增强、记忆系统及基础设施演进趋势。面向Agent开发者提供全景技术视图。</p>", "priority": 1, "priority_label": "核心基础", "priority_color": "#d32f2f", "priority_bg": "#ffebee", "tags": ["overview", "llm"], "category": "", "category_label": "", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "概述", "references": ["本研报系统梳理了2024年AI Agent开发的核心技术栈，涵盖能力要素、主流框架、", "工具调用、RAG增强、记忆系统及基础设施演进趋势。面向Agent开发者提供全景技术视图。"], "children": []}, {"id": "architecture-ai-agent-核心能力要素", "title": "AI Agent 核心能力要素", "abstract": "现代AI Agent系统需要具备以下核心能力：感知环境、规划推理、工具调用、", "content_html": "<p>现代AI Agent系统需要具备以下核心能力：感知环境、规划推理、工具调用、\n记忆管理、多模态交互等。这些能力要素共同构成了Agent的\"操作系统\"层。</p>", "priority": 1, "priority_label": "核心基础", "priority_color": "#d32f2f", "priority_bg": "#ffebee", "tags": [], "category": "architecture", "category_label": "架构设计", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "AI Agent 核心能力要素", "references": ["现代AI Agent系统需要具备以下核心能力：感知环境、规划推理、工具调用、", "记忆管理、多模态交互等。这些能力要素共同构成了Agent的\"操作系统\"层。"], "children": [{"id": "感知与理解", "title": "感知与理解", "abstract": "Agent首先需要理解用户意图和上下文。这包括自然语言理解(NLU)、", "content_html": "<p>Agent首先需要理解用户意图和上下文。这包括自然语言理解(NLU)、\n意图识别、上下文窗口管理等。最新的大模型已经具备强大的上下文理解能力，\n但在长对话和复杂任务中仍面临挑战。</p>", "priority": 3, "priority_label": "一般了解", "priority_color": "#fbc02d", "priority_bg": "#fffde7", "tags": [], "category": "architecture", "category_label": "架构设计", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "感知与理解", "references": ["Agent首先需要理解用户意图和上下文。这包括自然语言理解(NLU)、", "意图识别、上下文窗口管理等。最新的大模型已经具备强大的上下文理解能力，", "但在长对话和复杂任务中仍面临挑战。"], "children": []}, {"id": "规划与决策", "title": "规划与决策", "abstract": "规划能力是Agent区别于简单Chatbot的核心差异。主流范式包括ReAct、", "content_html": "<p>规划能力是Agent区别于简单Chatbot的核心差异。主流范式包括ReAct、\nPlan-and-Execute、以及更前沿的Tree-of-Thought。</p>\n<p>ReAct(Reasoning + Acting)范式将推理和行动交替进行，每一轮推理后执行工具调用，\n观察结果再继续推理。这种模式在LangChain和LangGraph中得到广泛应用。</p>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": ["planning", "react", "plan-execute"], "category": "architecture", "category_label": "架构设计", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "规划与决策", "references": ["规划能力是Agent区别于简单Chatbot的核心差异。主流范式包括ReAct、", "Plan-and-Execute、以及更前沿的Tree-of-Thought。", "ReAct(Reasoning + Acting)范式将推理和行动交替进行，每一轮推理后执行工具调用，", "观察结果再继续推理。这种模式在LangChain和LangGraph中得到广泛应用。"], "children": []}, {"id": "工具使用", "title": "工具使用", "abstract": "工具调用让Agent能够突破LLM的文本边界，与外部世界交互。", "content_html": "<p>工具调用让Agent能够突破LLM的文本边界，与外部世界交互。</p>", "priority": 3, "priority_label": "一般了解", "priority_color": "#fbc02d", "priority_bg": "#fffde7", "tags": [], "category": "architecture", "category_label": "架构设计", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "工具使用", "references": ["工具调用让Agent能够突破LLM的文本边界，与外部世界交互。"], "children": []}]}, {"id": "architecture-主流开发框架对比", "title": "主流开发框架对比", "abstract": "当前主流Agent开发框架可分为轻量级编排库和全栈平台两类。", "content_html": "<p>当前主流Agent开发框架可分为轻量级编排库和全栈平台两类。</p>\n<table>\n<thead>\n<tr>\n<th>框架</th>\n<th>类型</th>\n<th>特点</th>\n<th>适用场景</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>LangChain</td>\n<td>编排库</td>\n<td>生态丰富，组件化</td>\n<td>快速原型</td>\n</tr>\n<tr>\n<td>LangGraph</td>\n<td>状态机</td>\n<td>有向图编排</td>\n<td>复杂流程</td>\n</tr>\n<tr>\n<td>AutoGen</td>\n<td>多Agent</td>\n<td>对话驱动</td>\n<td>多角色协作</td>\n</tr>\n<tr>\n<td>CrewAI</td>\n<td>多Agent</td>\n<td>角色扮演</td>\n<td>团队协作</td>\n</tr>\n<tr>\n<td>Semantic Kernel</td>\n<td>企业级</td>\n<td>微软生态</td>\n<td>企业应用</td>\n</tr>\n</tbody>\n</table>\n<p>LangGraph通过有向图(DAG)来编排Agent的执行流程，每个节点代表一个状态，\n边代表状态转换。相比LangChain的链式调用，LangGraph更适合复杂的多步骤Agent。</p>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": ["langchain", "langgraph", "autogen", "crewai"], "category": "architecture", "category_label": "架构设计", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "主流开发框架对比", "references": ["当前主流Agent开发框架可分为轻量级编排库和全栈平台两类。", "| 框架 | 类型 | 特点 | 适用场景 |", "|------|------|------|----------|", "| LangChain | 编排库 | 生态丰富，组件化 | 快速原型 |", "| LangGraph | 状态机 | 有向图编排 | 复杂流程 |", "| AutoGen | 多Agent | 对话驱动 | 多角色协作 |", "| CrewAI | 多Agent | 角色扮演 | 团队协作 |", "| Semantic Kernel | 企业级 | 微软生态 | 企业应用 |", "LangGraph通过有向图(DAG)来编排Agent的执行流程，每个节点代表一个状态，", "边代表状态转换。相比LangChain的链式调用，LangGraph更适合复杂的多步骤Agent。"], "children": []}, {"id": "tool-calling-工具调用技术", "title": "工具调用技术", "abstract": "工具调用(原Function Calling)是Agent连接外部世界的桥梁。", "content_html": "<p>工具调用(原Function Calling)是Agent连接外部世界的桥梁。</p>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": [], "category": "tool-calling", "category_label": "工具调用", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "工具调用技术", "references": ["工具调用(原Function Calling)是Agent连接外部世界的桥梁。"], "children": [{"id": "function-calling-基础", "title": "Function Calling 基础", "abstract": "LLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。", "content_html": "<p>LLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。\nOpenAI在2023年6月首次推出，此后Anthropic、Google等厂商也相继支持。</p>\n<p>典型流程：用户输入 → LLM解析意图 → 返回function_call JSON → 执行函数 → \n将结果返回LLM → 生成最终回复。</p>", "priority": 1, "priority_label": "核心基础", "priority_color": "#d32f2f", "priority_bg": "#ffebee", "tags": ["function-calling", "openai"], "category": "tool-calling", "category_label": "工具调用", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "Function Calling 基础", "references": ["LLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。", "OpenAI在2023年6月首次推出，此后Anthropic、Google等厂商也相继支持。", "典型流程：用户输入 → LLM解析意图 → 返回function_call JSON → 执行函数 →", "将结果返回LLM → 生成最终回复。"], "children": []}, {"id": "mcp-协议", "title": "MCP 协议", "abstract": "Model Context Protocol (MCP)由Anthropic于2024年底推出，旨在标准化", "content_html": "<p>Model Context Protocol (MCP)由Anthropic于2024年底推出，旨在标准化\nAI模型与外部工具的交互方式。MCP定义了统一的Client-Server架构。</p>\n<div class=\"codehilite\"><pre><span></span><code><span class=\"c1\"># MCP Client 示例</span>\n<span class=\"kn\">from</span><span class=\"w\"> </span><span class=\"nn\">mcp</span><span class=\"w\"> </span><span class=\"kn\">import</span> <span class=\"n\">Client</span>\n\n<span class=\"n\">client</span> <span class=\"o\">=</span> <span class=\"n\">Client</span><span class=\"p\">()</span>\n<span class=\"n\">result</span> <span class=\"o\">=</span> <span class=\"k\">await</span> <span class=\"n\">client</span><span class=\"o\">.</span><span class=\"n\">call_tool</span><span class=\"p\">(</span><span class=\"s2\">&quot;web_search&quot;</span><span class=\"p\">,</span> <span class=\"p\">{</span><span class=\"s2\">&quot;query&quot;</span><span class=\"p\">:</span> <span class=\"s2\">&quot;AI trends 2024&quot;</span><span class=\"p\">})</span>\n</code></pre></div>", "priority": 3, "priority_label": "一般了解", "priority_color": "#fbc02d", "priority_bg": "#fffde7", "tags": [], "category": "tool-calling", "category_label": "工具调用", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "MCP 协议", "references": ["Model Context Protocol (MCP)由Anthropic于2024年底推出，旨在标准化", "AI模型与外部工具的交互方式。MCP定义了统一的Client-Server架构。", "```python", "# MCP Client 示例", "from mcp import Client", "client = Client()", "result = await client.call_tool(\"web_search\", {\"query\": \"AI trends 2024\"})", "```"], "children": []}, {"id": "工具选择策略", "title": "工具选择策略", "abstract": "当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、", "content_html": "<p>当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、\n基于分类目录、以及混合检索等方法。</p>", "priority": 3, "priority_label": "一般了解", "priority_color": "#fbc02d", "priority_bg": "#fffde7", "tags": [], "category": "tool-calling", "category_label": "工具调用", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "工具选择策略", "references": ["当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、", "基于分类目录、以及混合检索等方法。"], "children": []}]}, {"id": "rag-rag-检索增强生成", "title": "RAG 检索增强生成", "abstract": "RAG是解决LLM知识截止和幻觉问题的主流方案。", "content_html": "<p>RAG是解决LLM知识截止和幻觉问题的主流方案。</p>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": [], "category": "rag", "category_label": "RAG 与知识增强", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "RAG 检索增强生成", "references": ["RAG是解决LLM知识截止和幻觉问题的主流方案。"], "children": [{"id": "分块策略", "title": "分块策略", "abstract": "文档分块(Chunking)直接影响检索质量。常用策略：", "content_html": "<p>文档分块(Chunking)直接影响检索质量。常用策略：</p>\n<ul>\n<li><strong>固定大小</strong>: 512/1024 tokens，简单但可能切断语义</li>\n<li><strong>语义分块</strong>: 基于句子边界和语义相似度动态切分</li>\n<li><strong>层级分块</strong>: 保持文档结构（标题-段落），适合研报类文档</li>\n</ul>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": [], "category": "rag", "category_label": "RAG 与知识增强", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "分块策略", "references": ["文档分块(Chunking)直接影响检索质量。常用策略：", "- **固定大小**: 512/1024 tokens，简单但可能切断语义", "- **语义分块**: 基于句子边界和语义相似度动态切分", "- **层级分块**: 保持文档结构（标题-段落），适合研报类文档"], "children": []}, {"id": "检索与重排序", "title": "检索与重排序", "abstract": "两阶段检索已成标配：粗排(向量检索 TopK) → 精排(Crossencoder 重排序)。", "content_html": "<p>两阶段检索已成标配：粗排(向量检索 Top-K) → 精排(Cross-encoder 重排序)。\nCohere Rerank和BGE-Reranker是主流选择。</p>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": ["retrieval-strategy", "reranking"], "category": "rag", "category_label": "RAG 与知识增强", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "检索与重排序", "references": ["两阶段检索已成标配：粗排(向量检索 Top-K) → 精排(Cross-encoder 重排序)。", "Cohere Rerank和BGE-Reranker是主流选择。"], "children": []}]}, {"id": "memory-记忆系统", "title": "记忆系统", "abstract": "Agent的记忆系统决定了其持续对话和个性化能力。", "content_html": "<p>Agent的记忆系统决定了其持续对话和个性化能力。</p>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": [], "category": "memory", "category_label": "记忆系统", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "记忆系统", "references": ["Agent的记忆系统决定了其持续对话和个性化能力。"], "children": [{"id": "短期记忆", "title": "短期记忆", "abstract": "短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文", "content_html": "<p>短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文\n仍面临\"迷失在中间\"(Lost in the Middle)问题。</p>", "priority": 3, "priority_label": "一般了解", "priority_color": "#fbc02d", "priority_bg": "#fffde7", "tags": [], "category": "memory", "category_label": "记忆系统", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "短期记忆", "references": ["短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文", "仍面临\"迷失在中间\"(Lost in the Middle)问题。"], "children": []}, {"id": "长期记忆", "title": "长期记忆", "abstract": "长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：", "content_html": "<p>长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：\n向量数据库(Milvus/Pinecone)、知识图谱、以及Mem0等记忆中间件。</p>", "priority": 1, "priority_label": "核心基础", "priority_color": "#d32f2f", "priority_bg": "#ffebee", "tags": ["memory", "long-term", "vector-retrieval"], "category": "memory", "category_label": "记忆系统", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "长期记忆", "references": ["长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：", "向量数据库(Milvus/Pinecone)、知识图谱、以及Mem0等记忆中间件。"], "children": []}, {"id": "记忆整合策略", "title": "记忆整合策略", "abstract": "从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。", "content_html": "<p>从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。\n核心思想是模拟人脑的海马体记忆巩固过程。</p>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": [], "category": "memory", "category_label": "记忆系统", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "记忆整合策略", "references": ["从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。", "核心思想是模拟人脑的海马体记忆巩固过程。"], "children": []}]}, {"id": "architecture-基础设施演进", "title": "基础设施演进", "abstract": "Agent基础设施正从\"拼凑式\"向\"平台化\"演进。", "content_html": "<p>Agent基础设施正从\"拼凑式\"向\"平台化\"演进。</p>\n<ul>\n<li><strong>2023</strong>: 手工编排，LangChain链式调用</li>\n<li><strong>2024 H1</strong>: 状态机编排，LangGraph/AutoGen</li>\n<li><strong>2024 H2</strong>: MCP协议统一工具接口，标准化加速</li>\n<li><strong>2025</strong>: Agent原生基础设施（AgentOS, Agent-native DB）</li>\n</ul>\n<p>容器化部署、GPU资源调度、观测性(Observability)成为Agent基础设施的三大支柱。</p>", "priority": 1, "priority_label": "核心基础", "priority_color": "#d32f2f", "priority_bg": "#ffebee", "tags": ["langchain", "langgraph", "autogen", "beginner"], "category": "architecture", "category_label": "架构设计", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "基础设施演进", "references": ["Agent基础设施正从\"拼凑式\"向\"平台化\"演进。", "- **2023**: 手工编排，LangChain链式调用", "- **2024 H1**: 状态机编排，LangGraph/AutoGen", "- **2024 H2**: MCP协议统一工具接口，标准化加速", "- **2025**: Agent原生基础设施（AgentOS, Agent-native DB）", "容器化部署、GPU资源调度、观测性(Observability)成为Agent基础设施的三大支柱。"], "children": []}, {"id": "architecture-技术演进趋势总结", "title": "技术演进趋势总结", "abstract": "1. 从CoT到Agentic Workflow: 单次推理 → 多步自主执行", "content_html": "<ol>\n<li><strong>从CoT到Agentic Workflow</strong>: 单次推理 → 多步自主执行</li>\n<li><strong>工具标准化</strong>: MCP协议推动工具生态统一</li>\n<li><strong>记忆原生化</strong>: 从外挂向量库到模型原生记忆能力</li>\n<li><strong>多Agent协作</strong>: 从单体Agent到Agent团队</li>\n<li><strong>安全对齐</strong>: RLHF/DPO + 护栏机制成为标配</li>\n</ol>", "priority": 2, "priority_label": "重要常用", "priority_color": "#f57c00", "priority_bg": "#fff3e0", "tags": [], "category": "architecture", "category_label": "架构设计", "l2_category": "", "source_file": "agent-tech-2024.md", "source_section": "技术演进趋势总结", "references": ["1. **从CoT到Agentic Workflow**: 单次推理 → 多步自主执行", "2. **工具标准化**: MCP协议推动工具生态统一", "3. **记忆原生化**: 从外挂向量库到模型原生记忆能力", "4. **多Agent协作**: 从单体Agent到Agent团队", "5. **安全对齐**: RLHF/DPO + 护栏机制成为标配"], "children": []}]}], "stats": {"node_count": 20, "max_depth": 3, "by_category": {"architecture": 7, "tool-calling": 4, "memory": 4, "rag": 3}, "by_priority": {"1": 6, "2": 9, "3": 5}, "top_tags": {"langchain": 2, "langgraph": 2, "autogen": 2, "overview": 1, "llm": 1, "planning": 1, "react": 1, "plan-execute": 1, "crewai": 1, "function-calling": 1, "openai": 1, "retrieval-strategy": 1, "reranking": 1, "memory": 1, "long-term": 1, "vector-retrieval": 1, "beginner": 1}}, "ontology": {"architecture": {"label": "架构设计", "description": "Agent 系统架构、核心能力要素、框架设计"}, "planning": {"label": "规划与推理", "description": "Agent 的任务规划、推理链、决策策略"}, "tool-calling": {"label": "工具调用", "description": "Function Calling、MCP、工具选择与编排"}, "memory": {"label": "记忆系统", "description": "短期/长期记忆、向量检索、上下文管理"}, "multi-agent": {"label": "多智能体协作", "description": "多 Agent 角色分工、通信、编排"}, "rag": {"label": "RAG 与知识增强", "description": "检索增强生成、分块、重排序、索引"}, "evaluation": {"label": "评估与评测", "description": "Benchmark、评测方法、质量度量"}, "safety": {"label": "安全与对齐", "description": "护栏、RLHF/DPO、红队测试"}}, "priorities": {"1": {"label": "核心基础", "color": "#d32f2f", "bg": "#ffebee", "description": "必须掌握的基础知识"}, "2": {"label": "重要常用", "color": "#f57c00", "bg": "#fff3e0", "description": "日常开发常用"}, "3": {"label": "一般了解", "color": "#fbc02d", "bg": "#fffde7", "description": "建议了解"}, "4": {"label": "进阶深入", "color": "#1976d2", "bg": "#e3f2fd", "description": "深入探索"}, "5": {"label": "扩展选读", "color": "#757575", "bg": "#f5f5f5", "description": "按需查阅"}}};
+
+// ── 渲染函数 ───────────────────────────────────────
+function buildTree(nodes, container, depth) {
+    nodes.forEach(node => {
+        const div = document.createElement('div');
+        div.className = 'tree-node';
+        div.dataset.id = node.id;
+        div.dataset.title = node.title.toLowerCase();
+        div.dataset.tags = (node.tags || []).join(' ').toLowerCase();
+        div.dataset.content = (node.abstract || '') + ' ' + (node.category_label || '');
+        div.dataset.priority = node.priority;
+
+        const row = document.createElement('div');
+        row.className = 'tree-row';
+        row.style.paddingLeft = (8 + depth * 16) + 'px';
+        row.onclick = (e) => { e.stopPropagation(); selectNode(node); };
+
+        // toggle
+        const toggle = document.createElement('span');
+        toggle.className = 'toggle' + (node.children.length === 0 ? ' leaf' : '');
+        toggle.textContent = '▶';
+        if (node.children.length > 0) {
+            toggle.onclick = (e) => {
+                e.stopPropagation();
+                toggleNode(div, toggle);
+            };
+        }
+        row.appendChild(toggle);
+
+        // priority dot
+        const dot = document.createElement('span');
+        dot.className = 'priority-dot';
+        dot.style.background = node.priority_color;
+        dot.title = node.priority_label;
+        row.appendChild(dot);
+
+        // title
+        const titleEl = document.createElement('span');
+        titleEl.className = 'node-title';
+        titleEl.textContent = node.title;
+        row.appendChild(titleEl);
+
+        // tags
+        if (node.tags && node.tags.length > 0) {
+            const tagsDiv = document.createElement('span');
+            tagsDiv.className = 'node-tags';
+            node.tags.slice(0, 3).forEach(t => {
+                const tEl = document.createElement('span');
+                tEl.className = 'node-tag';
+                tEl.textContent = t;
+                tagsDiv.appendChild(tEl);
+            });
+            row.appendChild(tagsDiv);
+        }
+
+        div.appendChild(row);
+
+        // children container
+        if (node.children.length > 0) {
+            const childContainer = document.createElement('div');
+            childContainer.className = 'tree-children';
+            childContainer.style.display = 'none';
+            buildTree(node.children, childContainer, depth + 1);
+            div.appendChild(childContainer);
+        }
+
+        container.appendChild(div);
+        window._nodeMap[node.id] = node;
+    });
+}
+
+function toggleNode(div, toggle) {
+    const childContainer = div.querySelector('.tree-children');
+    if (!childContainer) return;
+    if (childContainer.style.display === 'none') {
+        childContainer.style.display = 'block';
+        toggle.textContent = '▼';
+    } else {
+        childContainer.style.display = 'none';
+        toggle.textContent = '▶';
+    }
+}
+
+function collapseAll() {
+    document.querySelectorAll('.tree-children').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.toggle:not(.leaf)').forEach(t => t.textContent = '▶');
+}
+
+function selectNode(node) {
+    // highlight
+    document.querySelectorAll('.tree-row').forEach(r => r.classList.remove('active'));
+    const row = document.querySelector(`[data-id="${node.id}"] .tree-row`);
+    if (row) row.classList.add('active');
+
+    // show detail
+    document.getElementById('detail-empty').style.display = 'none';
+    const dc = document.getElementById('detail-content');
+    dc.className = 'show';
+
+    let tagsHtml = (node.tags || []).map(t =>
+        `<span class="node-tag">${t}</span>`).join('');
+
+    let refsHtml = '';
+    if (node.references && node.references.length > 0) {
+        refsHtml = `<div class="refs-section">
+            <h4>📚 参考文献</h4>
+            ${node.references.map(r => `<div class="ref-item">${r}</div>`).join('')}
+        </div>`;
+    }
+
+    dc.innerHTML = `
+        <div class="detail-header">
+            <h2>${node.title}</h2>
+            <div class="detail-meta">
+                <span class="badge" style="background:${node.priority_bg};color:${node.priority_color}">
+                    ${'⭐'.repeat(node.priority)} P${node.priority} ${node.priority_label}
+                </span>
+                ${node.category_label ? `<span>${node.category_label}</span>` : ''}
+                ${node.l2_category ? `<span>· ${node.l2_category}</span>` : ''}
+                ${node.source_file ? `<span>📄 ${node.source_file}</span>` : ''}
+                ${node.source_section ? `<span>§ ${node.source_section}</span>` : ''}
+            </div>
+        </div>
+        ${node.abstract ? `<div class="detail-abstract">${node.abstract}</div>` : ''}
+        <div class="md-content">${node.content_html || '<p><em>（无正文内容）</em></p>'}</div>
+        ${tagsHtml ? `<div style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap">${tagsHtml}</div>` : ''}
+        ${refsHtml}
+    `;
+}
+
+function filterTree() {
+    const q = document.getElementById('search').value.toLowerCase().trim();
+    document.querySelectorAll('.tree-node').forEach(div => {
+        if (!q) {
+            div.querySelector('.tree-row').classList.remove('hidden');
+            return;
+        }
+        const text = div.dataset.title + ' ' + div.dataset.tags + ' ' + div.dataset.content;
+        const match = text.toLowerCase().includes(q);
+        div.querySelector('.tree-row').classList.toggle('hidden', !match);
+        // 如果匹配，展开父节点
+        if (match) {
+            let parent = div.parentElement;
+            while (parent) {
+                if (parent.classList.contains('tree-children')) {
+                    parent.style.display = 'block';
+                    const siblingToggle = parent.parentElement.querySelector('.toggle');
+                    if (siblingToggle) siblingToggle.textContent = '▼';
+                }
+                parent = parent.parentElement;
+            }
+        }
+    });
+}
+
+// ── 统计 ───────────────────────────────────────────
+function renderStats() {
+    const s = DATA.stats;
+    document.getElementById('stats-count').textContent =
+        `节点: ${s.node_count}`;
+    document.getElementById('stats-depth').textContent =
+        `最大深度: ${s.max_depth}`;
+
+    // priority legend
+    const legend = document.getElementById('priority-legend');
+    const pri = DATA.priorities;
+    legend.innerHTML = Object.entries(pri).map(([k, v]) =>
+        `<span><span class="legend-dot" style="background:${v.color}"></span>P${k} ${s.by_priority[k] || 0}</span>`
+    ).join('');
+}
+
+// ── 初始化 ─────────────────────────────────────────
+window._nodeMap = {};
+const treeContainer = document.getElementById('tree');
+buildTree(DATA.tree, treeContainer, 0);
+
+// 默认展开第一层
+document.querySelectorAll('#tree > .tree-node > .tree-children').forEach(c => {
+    c.style.display = 'block';
+});
+document.querySelectorAll('#tree > .tree-node > .tree-row > .toggle:not(.leaf)').forEach(t => {
+    t.textContent = '▼';
+});
+
+renderStats();
+</script>
+</body>
+</html>

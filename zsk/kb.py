@@ -196,6 +196,31 @@ def cmd_import(kb: KnowledgeBase, args):
 
     filepath = Path(args.path)
 
+    print("=" * 60)
+    print("⚠  import 是规则匹配模式，准确度有限")
+    print("=" * 60)
+    print()
+    print("   💡 建议改用智能构建模式以获得更准确的知识树：")
+    print(f"      python3 {PROJECT_DIR}/kb.py build")
+    print()
+    print("   build 模式会输出完整分析报告，由 Agent 语义理解每个概念后再精准构建。")
+    print("   import 模式仅作快速初导，可能漏合概念或分类错误。")
+    print()
+    print("   继续使用 import？(规则模式)[y/N] ", end="", flush=True)
+
+    if not sys.stdin.isatty():
+        # 非交互模式（agent 调用）→ 自动跳过，改用 build
+        print("(非交互终端，自动跳过 import，请使用 build 命令)")
+        print("=" * 60)
+        return
+
+    resp = input().strip().lower()
+    if resp not in ("y", "yes"):
+        print("已取消。请使用: python3 kb.py build")
+        return
+
+    print()
+
     if args.no_merge:
         # 旧模式：每份报告独立成树
         from kb_import import import_md, import_directory

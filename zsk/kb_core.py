@@ -15,6 +15,29 @@ from dataclasses import dataclass, field, asdict
 from kb_ontology import get_priority_info, ONTOLOGY, PRIORITY_LEVELS
 
 
+# ── 标题归一化 ────────────────────────────────────────────
+
+def normalize_title(title: str) -> str:
+    """标题归一化：去掉标点、空格、常见前缀，用于模糊匹配。"""
+    import re
+    t = title.strip().lower()
+    # 去掉冒号、括号、引号等标点
+    t = re.sub(r"[：:：（）()【】「」\"\"'']", "", t)
+    # 合并连续空格
+    t = re.sub(r"\s+", "", t)
+    # 循环去掉常见前缀（处理"AI Agent 工具调用"这类多前缀）
+    prefixes = ["agent", "aiagent", "ai"]
+    changed = True
+    while changed:
+        changed = False
+        for prefix in prefixes:
+            if t.startswith(prefix) and len(t) > len(prefix):
+                t = t[len(prefix):]
+                changed = True
+                break
+    return t
+
+
 # ── 数据模型 ──────────────────────────────────────────────
 
 @dataclass
@@ -127,10 +150,10 @@ class KnowledgeBase:
         return [n for n in self.nodes.values() if n.category == cat_id]
 
     def find_by_title_category(self, title: str, category: str) -> KnowledgeNode | None:
-        """按标题+分类查找已有节点（用于合并去重）。"""
-        title_lower = title.strip().lower()
+        """按标题+分类查找已有节点（归一化匹配，用于合并去重）。"""
+        norm = normalize_title(title)
         for node in self.nodes.values():
-            if node.title.strip().lower() == title_lower and node.category == category:
+            if normalize_title(node.title) == norm and node.category == category:
                 return node
         return None
 
@@ -371,6 +394,91 @@ class KnowledgeBase:
         valid = [cid for cid in child_ids if cid in self.nodes]
         parent.children = valid
         self._save()
+
+    def fill_empty_abstracts(self) -> int:
+        """
+        为摘要为空的节点自动从正文提取摘要。
+        返回填充的节点数。
+        """
+        count = 0
+        for node in self.nodes.values():
+            if node.abstract.strip():
+                continue
+            if not node.content.strip():
+                continue
+            # 取正文第一段非空、非标题的文本
+            for line in node.content.split("\n"):
+                line = line.strip()
+                if not line or line.startswith("#") or line.startswith("```") or line.startswith("|"):
+                    continue
+                clean = re.sub(r"[\*\`\[\]\(\)\>\-\+]", "", line).strip()
+                if len(clean) > 10:
+                    node.abstract = clean[:150] + ("…" if len(clean) > 150 else "")
+                    count += 1
+                    break
+        if count:
+            self._save()
+        return count
+
+    def dedup_pass(self) -> dict:
+        """
+        遍历所有非系统节点，找出归一化标题相同且同分类的重复节点并合并。
+        返回 {"merged": N, "removed": N}。
+        """
+        from collections import defaultdict
+        groups: dict[str, list[str]] = defaultdict(list)
+
+        for node in self.nodes.values():
+            if node.id.startswith("cat-") or node.id == "kb-root":
+                continue
+            key = f"{node.category}|{normalize_title(node.title)}"
+            groups[key].append(node.id)
+
+        merged = 0
+        removed = 0
+        for key, ids in groups.items():
+            if len(ids) < 2:
+                continue
+            # 保留第一个，其余合并进去
+            keeper_id = ids[0]
+            keeper = self.nodes[keeper_id]
+            for dup_id in ids[1:]:
+                dup = self.nodes.get(dup_id)
+                if not dup:
+                    continue
+                # 合并内容
+                if dup.content and dup.content not in keeper.content:
+                    keeper.content += f"\n\n---\n\n{dup.content}"
+                if not keeper.abstract and dup.abstract:
+                    keeper.abstract = dup.abstract
+                if dup.priority < keeper.priority:
+                    keeper.priority = dup.priority
+                for t in dup.tags:
+                    if t not in keeper.tags:
+                        keeper.tags.append(t)
+                if dup.source_file and dup.source_file not in keeper.source_file:
+                    keeper.source_file += f", {dup.source_file}"
+                for r in dup.references:
+                    if r not in keeper.references:
+                        keeper.references.append(r)
+                # 移转子节点
+                for cid in dup.children:
+                    if cid in self.nodes and cid not in keeper.children:
+                        keeper.children.append(cid)
+                        self.nodes[cid].parent_id = keeper_id
+                # 从父节点移除
+                if dup.parent_id and dup.parent_id in self.nodes:
+                    p = self.nodes[dup.parent_id]
+                    if dup_id in p.children:
+                        p.children.remove(dup_id)
+                # 删除重复节点
+                del self.nodes[dup_id]
+                removed += 1
+                merged += 1
+
+        if merged:
+            self._save()
+        return {"merged": merged, "removed": removed}
 
     # ── 统计 ────────────────────────────────────────────
 

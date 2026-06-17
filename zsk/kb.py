@@ -210,6 +210,8 @@ def cmd_import(kb: KnowledgeBase, args):
                 total += len(nodes)
             if not args.dry_run:
                 kb.ensure_category_tree()
+                kb.fill_empty_abstracts()
+                kb.dedup_pass()
             action = "将导入" if args.dry_run else "已导入"
             print(f"\n📦 {action} {len(results)} 个文件，共 {total} 个知识点（独立模式）")
         else:
@@ -218,6 +220,8 @@ def cmd_import(kb: KnowledgeBase, args):
                 for n in nodes:
                     kb.add(n)
                 kb.ensure_category_tree()
+                kb.fill_empty_abstracts()
+                kb.dedup_pass()
             action = "将导入" if args.dry_run else "已导入"
             print(f"📄 {filepath.name}: {action} {len(nodes)} 个知识点（独立模式）\n")
             for n in nodes:
@@ -289,6 +293,20 @@ def cmd_reorganize(kb: KnowledgeBase, args):
         sub = kb.get_children(c.id)
         print(f"     [{c.title}] → {len(sub)} 个概念节点")
     print()
+    print(f"   💡 建议运行 python3 kb.py export 更新可视化")
+
+
+def cmd_dedup(kb: KnowledgeBase, args):
+    """合并归一化标题相同的重复节点。"""
+    n = kb.fill_empty_abstracts()
+    if n:
+        print(f"📝 填充了 {n} 个空摘要")
+    result = kb.dedup_pass()
+    if result["merged"]:
+        print(f"🔗 合并了 {result['merged']} 对重复节点，移除 {result['removed']} 个")
+    else:
+        print("✅ 未发现重复节点")
+    kb.ensure_category_tree()
     print(f"   💡 建议运行 python3 kb.py export 更新可视化")
 
 
@@ -553,6 +571,9 @@ def main():
     # reorganize
     sub.add_parser("reorganize", help="重建分类树层级：主根 → 分类 → 概念")
 
+    # dedup
+    sub.add_parser("dedup", help="合并归一化标题相同的重复节点")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -573,6 +594,7 @@ def main():
         "export": cmd_export,
         "setup": cmd_setup,
         "reorganize": cmd_reorganize,
+        "dedup": cmd_dedup,
     }
 
     if args.command in commands:

@@ -2,7 +2,7 @@
   "meta": {
     "title": "Agent 开发技术知识库",
     "version": "1.0",
-    "updated_at": "2026-06-17T01:21:15Z",
+    "updated_at": "2026-06-17T01:53:10Z",
     "node_count": 28
   },
   "nodes": {
@@ -27,8 +27,8 @@
         "Agent 记忆系统是 2024-2025 年 Agent 技术栈中变化最快的领域之一。",
         "Agent的记忆系统决定了其持续对话和个性化能力。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "rag-rag-检索增强生成": {
       "id": "rag-rag-检索增强生成",
@@ -53,8 +53,8 @@
         "RAG 技术从 2023 年的基础检索方案演进到 2025 年的 Agentic RAG。",
         "RAG是解决LLM知识截止和幻觉问题的主流方案。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "tool-calling-工具调用技术": {
       "id": "tool-calling-工具调用技术",
@@ -76,8 +76,8 @@
       "references": [
         "工具调用(原Function Calling)是Agent连接外部世界的桥梁。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "architecture-技术演进趋势总结": {
       "id": "architecture-技术演进趋势总结",
@@ -103,8 +103,8 @@
         "4. **多Agent协作**: 从单体Agent到Agent团队",
         "5. **安全对齐**: RLHF/DPO + 护栏机制成为标配"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "短期记忆": {
       "id": "短期记忆",
@@ -133,8 +133,8 @@
         "短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文",
         "仍面临\"迷失在中间\"(Lost in the Middle)问题。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "长期记忆": {
       "id": "长期记忆",
@@ -161,8 +161,8 @@
         "长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：",
         "向量数据库(Milvus/Pinecone)、知识图谱、以及Mem0等记忆中间件。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "记忆整合策略": {
       "id": "记忆整合策略",
@@ -183,8 +183,8 @@
         "从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。",
         "核心思想是模拟人脑的海马体记忆巩固过程。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "检索策略": {
       "id": "检索策略",
@@ -207,8 +207,8 @@
         "- **CRAG**: 检索后加入纠错机制，对检索结果进行质量评估",
         "- **Agentic RAG**: 多步检索，Agent 根据中间结果动态调整检索计划"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "分块策略": {
       "id": "分块策略",
@@ -231,8 +231,8 @@
         "- **语义分块**: 基于句子边界和语义相似度动态切分",
         "- **层级分块**: 保持文档结构（标题-段落），适合研报类文档"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "function-calling-基础": {
       "id": "function-calling-基础",
@@ -261,8 +261,8 @@
         "典型流程：用户输入 → LLM解析意图 → 返回function_call JSON → 执行函数 →",
         "将结果返回LLM → 生成最终回复。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "工具选择策略": {
       "id": "工具选择策略",
@@ -285,8 +285,8 @@
         "当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、",
         "基于分类目录、以及混合检索等方法。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "kb-root": {
       "id": "kb-root",
@@ -313,8 +313,8 @@
         "cat-safety"
       ],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-architecture": {
       "id": "cat-architecture",
@@ -337,8 +337,8 @@
         "architecture-基础设施演进"
       ],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-planning": {
       "id": "cat-planning",
@@ -356,8 +356,8 @@
       "parent_id": "kb-root",
       "children": [],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-tool-calling": {
       "id": "cat-tool-calling",
@@ -377,8 +377,8 @@
         "tool-calling-工具调用技术"
       ],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-memory": {
       "id": "cat-memory",
@@ -398,8 +398,8 @@
         "memory-记忆系统"
       ],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-multi-agent": {
       "id": "cat-multi-agent",
@@ -417,8 +417,8 @@
       "parent_id": "kb-root",
       "children": [],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-rag": {
       "id": "cat-rag",
@@ -438,8 +438,8 @@
         "rag-rag-检索增强生成"
       ],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-evaluation": {
       "id": "cat-evaluation",
@@ -457,8 +457,8 @@
       "parent_id": "kb-root",
       "children": [],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "cat-safety": {
       "id": "cat-safety",
@@ -476,8 +476,8 @@
       "parent_id": "kb-root",
       "children": [],
       "references": [],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "architecture-ai-agent-核心能力要素": {
       "id": "architecture-ai-agent-核心能力要素",
@@ -500,8 +500,8 @@
         "现代AI Agent系统需要具备以下核心能力：感知环境、规划推理、工具调用、",
         "记忆管理、多模态交互等。这些能力要素共同构成了Agent的\"操作系统\"层。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "architecture-主流开发框架对比": {
       "id": "architecture-主流开发框架对比",
@@ -533,8 +533,8 @@
         "LangGraph通过有向图(DAG)来编排Agent的执行流程，每个节点代表一个状态，",
         "边代表状态转换。相比LangChain的链式调用，LangGraph更适合复杂的多步骤Agent。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "architecture-基础设施演进": {
       "id": "architecture-基础设施演进",
@@ -562,8 +562,8 @@
         "- **2025**: Agent原生基础设施（AgentOS, Agent-native DB）",
         "容器化部署、GPU资源调度、观测性(Observability)成为Agent基础设施的三大支柱。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "感知与理解": {
       "id": "感知与理解",
@@ -583,8 +583,8 @@
         "意图识别、上下文窗口管理等。最新的大模型已经具备强大的上下文理解能力，",
         "但在长对话和复杂任务中仍面临挑战。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "规划与决策": {
       "id": "规划与决策",
@@ -609,8 +609,8 @@
         "ReAct(Reasoning + Acting)范式将推理和行动交替进行，每一轮推理后执行工具调用，",
         "观察结果再继续推理。这种模式在LangChain和LangGraph中得到广泛应用。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "工具使用": {
       "id": "工具使用",
@@ -628,8 +628,8 @@
       "references": [
         "工具调用让Agent能够突破LLM的文本边界，与外部世界交互。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "mcp-协议": {
       "id": "mcp-协议",
@@ -654,8 +654,8 @@
         "result = await client.call_tool(\"web_search\", {\"query\": \"AI trends 2024\"})",
         "```"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     },
     "检索与重排序": {
       "id": "检索与重排序",
@@ -677,8 +677,8 @@
         "两阶段检索已成标配：粗排(向量检索 Top-K) → 精排(Cross-encoder 重排序)。",
         "Cohere Rerank和BGE-Reranker是主流选择。"
       ],
-      "created_at": "2026-06-17T01:21:15Z",
-      "updated_at": "2026-06-17T01:21:15Z"
+      "created_at": "2026-06-17T01:53:10Z",
+      "updated_at": "2026-06-17T01:53:10Z"
     }
   }
 }

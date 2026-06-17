@@ -20,9 +20,23 @@ def _md_to_html(md_text: str) -> str:
             extensions=["fenced_code", "tables", "codehilite", "toc"],
         )
     except ImportError:
-        # 降级：纯文本转义
         import html
         return "<pre>" + html.escape(md_text) + "</pre>"
+
+
+def _extract_first_sentence(text: str, max_len: int = 120) -> str:
+    """从正文取第一句有意义的话作为摘要。"""
+    if not text:
+        return ""
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line or line.startswith("#") or line.startswith("```") or line.startswith("|"):
+            continue
+        import re
+        clean = re.sub(r"[\*\`\[\]\(\)\>\-\+]", "", line).strip()
+        if len(clean) > 8:
+            return clean[:max_len] + ("…" if len(clean) > max_len else "")
+    return ""
 
 
 def _node_to_tree_item(node, kb: KnowledgeBase) -> dict:
@@ -36,7 +50,7 @@ def _node_to_tree_item(node, kb: KnowledgeBase) -> dict:
     return {
         "id": node.id,
         "title": node.title,
-        "abstract": node.abstract,
+        "abstract": node.abstract or _extract_first_sentence(node.content),
         "content_html": _md_to_html(node.content),
         "priority": node.priority,
         "priority_label": pri_info["label"],

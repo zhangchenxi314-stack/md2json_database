@@ -514,6 +514,9 @@ def import_and_merge(kb, filepath: str | Path,
     kb._save()
     # 重建分类层级（主根 → 分类 → 概念）
     kb.ensure_category_tree()
+    # 自动补摘要 + 去重
+    kb.fill_empty_abstracts()
+    kb.dedup_pass()
     return stats
 
 
@@ -531,6 +534,8 @@ def import_directory_merge(kb, dirpath: str | Path,
         for k in total:
             total[k] += s[k]
     kb.ensure_category_tree()
+    kb.fill_empty_abstracts()
+    kb.dedup_pass()
     return total
 
 

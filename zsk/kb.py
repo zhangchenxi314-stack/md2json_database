@@ -460,112 +460,38 @@ def cmd_build(kb: KnowledgeBase, args):
 
 
 def cmd_setup(kb: KnowledgeBase, args):
-    """在新机器上注册此知识库到 Hermes Agent。"""
-    skill_dir = Path.home() / ".hermes" / "skills" / "note-taking" / "zsk-knowledge-base"
-    skill_dir.mkdir(parents=True, exist_ok=True)
+    """在新机器上注册此知识库到 Hermes Agent。从 skills/ 目录安装。"""
+    import shutil
 
-    skill_content = f"""---
-name: zsk-knowledge-base
-description: "Use when the user asks to search, query, import, or manage the Agent 技术知识库 (zsk). A local Markdown-report → JSON knowledge base with CLI at {PROJECT_DIR}/kb.py."
-version: 1.0.0
-author: Hermes Agent
-license: MIT
-metadata:
-  hermes:
-    tags: [knowledge-base, ontology, agent-tech, markdown, json]
-    related_skills: [obsidian, llm-wiki]
----
+    skills_src = PROJECT_DIR / "skills"
+    if not skills_src.is_dir():
+        print("❌ skills/ 目录不存在")
+        return
 
-# ZSK — Agent 开发技术知识库
+    installed = 0
+    for skill_dir in sorted(skills_src.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        src_md = skill_dir / "SKILL.md"
+        if not src_md.exists():
+            continue
 
-## Overview
+        dst_dir = Path.home() / ".hermes" / "skills" / "note-taking" / skill_dir.name
+        dst_dir.mkdir(parents=True, exist_ok=True)
+        dst_md = dst_dir / "SKILL.md"
 
-zsk is a local knowledge base built from Markdown research reports about Agent development technology.
-Reports are parsed into structured JSON nodes organized by an 8-category ontology.
+        # 读取模板，替换占位符
+        content = src_md.read_text(encoding="utf-8")
+        content = content.replace("{PROJECT_DIR}", str(PROJECT_DIR))
+        dst_md.write_text(content, encoding="utf-8")
 
-**Project directory**: `{PROJECT_DIR}`
-**CLI entry**: `python3 {PROJECT_DIR}/kb.py`
-**Data file**: `{PROJECT_DIR}/data/knowledge_base.json`
-**Reports dir**: `{PROJECT_DIR}/reports/`
-**HTML output**: `{PROJECT_DIR}/output/knowledge_base.html`
+        print(f"   ✅ {skill_dir.name} → {dst_md}")
+        installed += 1
 
-## When to Use
-
-- User asks to search the knowledge base: "搜索知识库", "find xxx in kb"
-- User wants to import new reports: "导入研报", "把这篇加到知识库"
-- User wants stats or overview: "知识库有多少节点"
-- User wants the HTML visualization: "导出可视化", "open the kb"
-- User wants to add/edit/delete nodes: "加一个知识点", "修改 xxx"
-
-## Key Commands
-
-All commands use absolute paths — no `cd` needed.
-
-```bash
-python3 {PROJECT_DIR}/kb.py search "<keyword>"
-python3 {PROJECT_DIR}/kb.py list
-python3 {PROJECT_DIR}/kb.py list --category rag
-python3 {PROJECT_DIR}/kb.py list --priority 1
-python3 {PROJECT_DIR}/kb.py show <node_id>
-python3 {PROJECT_DIR}/kb.py stats
-```
-
-### Import Reports
-
-```bash
-# Always dry-run first
-python3 {PROJECT_DIR}/kb.py import <path/to/report.md> --dry-run
-
-# Interactive (recommended)
-python3 {PROJECT_DIR}/kb.py import <path/to/report.md> -i
-
-# Direct import
-python3 {PROJECT_DIR}/kb.py import <path/to/report.md>
-```
-
-### Export
-
-```bash
-python3 {PROJECT_DIR}/kb.py export
-# Then open {PROJECT_DIR}/output/knowledge_base.html in browser
-```
-
-## Workflows
-
-### User asks a knowledge question
-
-1. `python3 {PROJECT_DIR}/kb.py search "<keywords>"`
-2. If hits, show details with `python3 {PROJECT_DIR}/kb.py show <id>`
-3. Synthesize answer from KB content
-4. If no hits, tell user KB doesn't cover it
-
-### User wants to import reports
-
-1. `python3 {PROJECT_DIR}/kb.py stats` — check current state
-2. `python3 {PROJECT_DIR}/kb.py import <path> --dry-run` — preview
-3. Show user extracted nodes (categories, priorities, structure)
-4. Only run real import after user confirms
-
-### User wants visualization
-
-1. `python3 {PROJECT_DIR}/kb.py export` — re-export latest
-2. Tell user to open the HTML file in browser
-
-## Common Pitfalls
-
-1. **Use `python3`, not `python`.** macOS `python` may not exist.
-2. **Always dry-run before import.** Preview extracted nodes first.
-3. **Missing `markdown` dependency.** If export fails: `pip3 install markdown`.
-4. **Importing same file twice creates duplicates.** Search first to check.
-"""
-
-    skill_md = skill_dir / "SKILL.md"
-    skill_md.write_text(skill_content, encoding="utf-8")
-
-    print(f"✅ Skill 已注册到: {skill_md}")
     print()
-    print(f"   Hermes Agent 现在可以通过自然语言使用知识库。")
-    print(f"   试试在新会话中说：「搜索知识库里有什么」")
+    print(f"📦 已安装 {installed} 个 skill 到 Hermes Agent。")
+    print(f"   Hermes 现在可通过自然语言使用知识库。")
+    print(f"   试试：加载 zsk-build skill，然后构建知识库。")
 
 
 def _interactive_import(kb: KnowledgeBase, args):

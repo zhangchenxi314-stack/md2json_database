@@ -388,6 +388,20 @@ function selectNode(node) {{
         </div>`;
     }}
 
+    // 内容区域：为空时给友好提示
+    let contentHtml = node.content_html;
+    if (!contentHtml || contentHtml.trim() === '') {{
+        if (node.id === 'kb-root') {{
+            contentHtml = '<p style="color:#666">📖 AI Agent 开发技术全景知识体系。点击左侧分类节点逐步展开查看各领域知识点。</p>';
+        }} else if (node.id.startsWith('cat-')) {{
+            contentHtml = `<p style="color:#666">📂 此节点为<b>${{node.title}}</b>分类容器，点击左侧展开箭头查看该分类下的所有知识点。</p>`;
+        }} else if (node.children && node.children.length > 0) {{
+            contentHtml = `<p style="color:#666">📂 此节点包含 ${{node.children.length}} 个子知识点，点击左侧展开箭头查看详情。</p>`;
+        }} else {{
+            contentHtml = '<p><em>（暂无详细内容）</em></p>';
+        }}
+    }}
+
     dc.innerHTML = `
         <div class="detail-header">
             <h2>${{node.title}}</h2>
@@ -402,7 +416,7 @@ function selectNode(node) {{
             </div>
         </div>
         ${{node.abstract ? `<div class="detail-abstract">${{node.abstract}}</div>` : ''}}
-        <div class="md-content">${{node.content_html || '<p><em>（无正文内容）</em></p>'}}</div>
+        <div class="md-content">${{contentHtml}}</div>
         ${{tagsHtml ? `<div style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap">${{tagsHtml}}</div>` : ''}}
         ${{refsHtml}}
     `;

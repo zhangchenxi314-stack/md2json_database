@@ -2,10 +2,483 @@
   "meta": {
     "title": "Agent 开发技术知识库",
     "version": "1.0",
-    "updated_at": "2026-06-16T11:14:08Z",
-    "node_count": 19
+    "updated_at": "2026-06-17T01:21:15Z",
+    "node_count": 28
   },
   "nodes": {
+    "memory-记忆系统": {
+      "id": "memory-记忆系统",
+      "title": "记忆系统",
+      "abstract": "Agent的记忆系统决定了其持续对话和个性化能力。",
+      "content": "Agent 记忆系统是 2024-2025 年 Agent 技术栈中变化最快的领域之一。\n\n---\n\nAgent的记忆系统决定了其持续对话和个性化能力。",
+      "priority": 2,
+      "tags": [],
+      "category": "memory",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "记忆系统",
+      "parent_id": "cat-memory",
+      "children": [
+        "短期记忆",
+        "长期记忆",
+        "记忆整合策略"
+      ],
+      "references": [
+        "Agent 记忆系统是 2024-2025 年 Agent 技术栈中变化最快的领域之一。",
+        "Agent的记忆系统决定了其持续对话和个性化能力。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "rag-rag-检索增强生成": {
+      "id": "rag-rag-检索增强生成",
+      "title": "RAG 检索增强生成",
+      "abstract": "RAG是解决LLM知识截止和幻觉问题的主流方案。",
+      "content": "RAG 技术从 2023 年的基础检索方案演进到 2025 年的 Agentic RAG。\n\n---\n\nRAG是解决LLM知识截止和幻觉问题的主流方案。",
+      "priority": 1,
+      "tags": [
+        "beginner"
+      ],
+      "category": "rag",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "RAG 检索增强生成",
+      "parent_id": "cat-rag",
+      "children": [
+        "检索策略",
+        "分块策略",
+        "检索与重排序"
+      ],
+      "references": [
+        "RAG 技术从 2023 年的基础检索方案演进到 2025 年的 Agentic RAG。",
+        "RAG是解决LLM知识截止和幻觉问题的主流方案。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "tool-calling-工具调用技术": {
+      "id": "tool-calling-工具调用技术",
+      "title": "工具调用技术",
+      "abstract": "工具调用(原Function Calling)是Agent连接外部世界的桥梁。",
+      "content": "\n\n---\n\n工具调用(原Function Calling)是Agent连接外部世界的桥梁。",
+      "priority": 2,
+      "tags": [],
+      "category": "tool-calling",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "工具调用技术",
+      "parent_id": "cat-tool-calling",
+      "children": [
+        "function-calling-基础",
+        "工具选择策略",
+        "mcp-协议"
+      ],
+      "references": [
+        "工具调用(原Function Calling)是Agent连接外部世界的桥梁。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "architecture-技术演进趋势总结": {
+      "id": "architecture-技术演进趋势总结",
+      "title": "技术演进趋势总结",
+      "abstract": "1. 从CoT到Agentic Workflow: 单次推理 → 多步自主执行",
+      "content": "1. 记忆从外挂向量库向模型原生能力演进\n2. RAG 从单步检索向多步自主检索演进\n3. 工具调用从单次调用向并行+流式演进\n4. 检索质量从粗排向精排+纠错演进\n\n---\n\n1. **从CoT到Agentic Workflow**: 单次推理 → 多步自主执行\n2. **工具标准化**: MCP协议推动工具生态统一\n3. **记忆原生化**: 从外挂向量库到模型原生记忆能力\n4. **多Agent协作**: 从单体Agent到Agent团队\n5. **安全对齐**: RLHF/DPO + 护栏机制成为标配",
+      "priority": 2,
+      "tags": [],
+      "category": "architecture",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "技术演进趋势总结",
+      "parent_id": "cat-architecture",
+      "children": [],
+      "references": [
+        "1. 记忆从外挂向量库向模型原生能力演进",
+        "2. RAG 从单步检索向多步自主检索演进",
+        "3. 工具调用从单次调用向并行+流式演进",
+        "4. 检索质量从粗排向精排+纠错演进",
+        "1. **从CoT到Agentic Workflow**: 单次推理 → 多步自主执行",
+        "2. **工具标准化**: MCP协议推动工具生态统一",
+        "3. **记忆原生化**: 从外挂向量库到模型原生记忆能力",
+        "4. **多Agent协作**: 从单体Agent到Agent团队",
+        "5. **安全对齐**: RLHF/DPO + 护栏机制成为标配"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "短期记忆": {
+      "id": "短期记忆",
+      "title": "短期记忆",
+      "abstract": "短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文",
+      "content": "短期记忆的核心挑战是上下文窗口的高效利用。最新研究提出了\"滑动窗口+摘要压缩\"\n的混合策略，在长对话中保持关键信息的可及性。\n\n\n关键技术点：\n- 滑动窗口 + 重要性评分，动态保留关键信息\n- 摘要模型（如 GPT-4 摘要能力）压缩历史上下文\n- Mem0 等记忆中间件提供了开箱即用的短期记忆方案\n\n---\n\n短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文\n仍面临\"迷失在中间\"(Lost in the Middle)问题。",
+      "priority": 1,
+      "tags": [
+        "memory",
+        "short-term",
+        "context-window"
+      ],
+      "category": "memory",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "短期记忆",
+      "parent_id": "memory-记忆系统",
+      "children": [],
+      "references": [
+        "短期记忆的核心挑战是上下文窗口的高效利用。最新研究提出了\"滑动窗口+摘要压缩\"",
+        "的混合策略，在长对话中保持关键信息的可及性。",
+        "关键技术点：",
+        "- 滑动窗口 + 重要性评分，动态保留关键信息",
+        "- 摘要模型（如 GPT-4 摘要能力）压缩历史上下文",
+        "- Mem0 等记忆中间件提供了开箱即用的短期记忆方案",
+        "短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文",
+        "仍面临\"迷失在中间\"(Lost in the Middle)问题。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "长期记忆": {
+      "id": "长期记忆",
+      "title": "长期记忆",
+      "abstract": "长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：",
+      "content": "长期记忆需要向量数据库（如 Pinecone、Milvus、Weaviate）作为存储后端。\n关键是在海量记忆中快速检索相关信息。\n\n\n2025 年趋势：记忆原生化。模型本身开始具备原生记忆能力（如 Gemini 的\nContext Caching、Claude 的 Project Knowledge），减少对外部向量库的依赖。\n\n---\n\n长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：\n向量数据库(Milvus/Pinecone)、知识图谱、以及Mem0等记忆中间件。\n\n",
+      "priority": 1,
+      "tags": [
+        "memory",
+        "long-term",
+        "vector-retrieval"
+      ],
+      "category": "memory",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "长期记忆",
+      "parent_id": "memory-记忆系统",
+      "children": [],
+      "references": [
+        "长期记忆需要向量数据库（如 Pinecone、Milvus、Weaviate）作为存储后端。",
+        "关键是在海量记忆中快速检索相关信息。",
+        "2025 年趋势：记忆原生化。模型本身开始具备原生记忆能力（如 Gemini 的",
+        "Context Caching、Claude 的 Project Knowledge），减少对外部向量库的依赖。",
+        "长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：",
+        "向量数据库(Milvus/Pinecone)、知识图谱、以及Mem0等记忆中间件。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "记忆整合策略": {
+      "id": "记忆整合策略",
+      "title": "记忆整合策略",
+      "abstract": "从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。",
+      "content": "记忆整合参考了人脑海马体的工作机制。从短期记忆中选择高重要性信息，\n经过摘要压缩后存入长期记忆存储。\n\n---\n\n从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。\n核心思想是模拟人脑的海马体记忆巩固过程。",
+      "priority": 2,
+      "tags": [],
+      "category": "memory",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "记忆整合策略",
+      "parent_id": "memory-记忆系统",
+      "children": [],
+      "references": [
+        "记忆整合参考了人脑海马体的工作机制。从短期记忆中选择高重要性信息，",
+        "经过摘要压缩后存入长期记忆存储。",
+        "从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。",
+        "核心思想是模拟人脑的海马体记忆巩固过程。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "检索策略": {
+      "id": "检索策略",
+      "title": "检索策略",
+      "abstract": "除了传统的向量检索，近年出现了多种高级检索策略：",
+      "content": "除了传统的向量检索，近年出现了多种高级检索策略：\n- **Self-RAG**: 模型自主判断是否需要检索、检索什么、如何利用检索结果\n- **CRAG**: 检索后加入纠错机制，对检索结果进行质量评估\n- **Agentic RAG**: 多步检索，Agent 根据中间结果动态调整检索计划",
+      "priority": 3,
+      "tags": [
+        "advanced"
+      ],
+      "category": "rag",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md",
+      "source_section": "检索策略",
+      "parent_id": "rag-rag-检索增强生成",
+      "children": [],
+      "references": [
+        "除了传统的向量检索，近年出现了多种高级检索策略：",
+        "- **Self-RAG**: 模型自主判断是否需要检索、检索什么、如何利用检索结果",
+        "- **CRAG**: 检索后加入纠错机制，对检索结果进行质量评估",
+        "- **Agentic RAG**: 多步检索，Agent 根据中间结果动态调整检索计划"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "分块策略": {
+      "id": "分块策略",
+      "title": "分块策略",
+      "abstract": "文档分块(Chunking)直接影响检索质量。常用策略：",
+      "content": "最新的语义分块技术利用 embedding 模型的注意力权重来确定最佳切分点，\n相比固定大小分块，召回率提升 15-30%。\n\n---\n\n文档分块(Chunking)直接影响检索质量。常用策略：\n\n- **固定大小**: 512/1024 tokens，简单但可能切断语义\n- **语义分块**: 基于句子边界和语义相似度动态切分\n- **层级分块**: 保持文档结构（标题-段落），适合研报类文档",
+      "priority": 2,
+      "tags": [],
+      "category": "rag",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "分块策略",
+      "parent_id": "rag-rag-检索增强生成",
+      "children": [],
+      "references": [
+        "最新的语义分块技术利用 embedding 模型的注意力权重来确定最佳切分点，",
+        "相比固定大小分块，召回率提升 15-30%。",
+        "文档分块(Chunking)直接影响检索质量。常用策略：",
+        "- **固定大小**: 512/1024 tokens，简单但可能切断语义",
+        "- **语义分块**: 基于句子边界和语义相似度动态切分",
+        "- **层级分块**: 保持文档结构（标题-段落），适合研报类文档"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "function-calling-基础": {
+      "id": "function-calling-基础",
+      "title": "Function Calling 基础",
+      "abstract": "LLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。",
+      "content": "2025 年的 Function Calling 已支持：\n- 并行工具调用：一次返回多个 tool_call，减少往返延迟\n- 结构化输出：JSON Mode / Structured Outputs 确保返回格式可靠\n- 工具调用流式：在 streaming 模式下逐步返回 tool_call 参数\n\n---\n\n\nLLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。\nOpenAI在2023年6月首次推出，此后Anthropic、Google等厂商也相继支持。\n\n典型流程：用户输入 → LLM解析意图 → 返回function_call JSON → 执行函数 → \n将结果返回LLM → 生成最终回复。",
+      "priority": 1,
+      "tags": [
+        "beginner",
+        "function-calling",
+        "openai"
+      ],
+      "category": "tool-calling",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "Function Calling 基础",
+      "parent_id": "tool-calling-工具调用技术",
+      "children": [],
+      "references": [
+        "2025 年的 Function Calling 已支持：",
+        "- 并行工具调用：一次返回多个 tool_call，减少往返延迟",
+        "- 结构化输出：JSON Mode / Structured Outputs 确保返回格式可靠",
+        "- 工具调用流式：在 streaming 模式下逐步返回 tool_call 参数",
+        "LLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。",
+        "OpenAI在2023年6月首次推出，此后Anthropic、Google等厂商也相继支持。",
+        "典型流程：用户输入 → LLM解析意图 → 返回function_call JSON → 执行函数 →",
+        "将结果返回LLM → 生成最终回复。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "工具选择策略": {
+      "id": "工具选择策略",
+      "title": "工具选择策略",
+      "abstract": "当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、",
+      "content": "当工具数量超过 50 个时，需要高效的检索机制。常用方法包括：\n- 基于语义相似度筛选相关工具（embedding + Top-K）\n- 工具分组 + 层级选择\n- 基于历史使用频率的动态排序\n\n---\n\n当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、\n基于分类目录、以及混合检索等方法。",
+      "priority": 2,
+      "tags": [],
+      "category": "tool-calling",
+      "l2_category": "",
+      "source_file": "agent-memory-rag-deep.md, agent-tech-2024.md",
+      "source_section": "工具选择策略",
+      "parent_id": "tool-calling-工具调用技术",
+      "children": [],
+      "references": [
+        "当工具数量超过 50 个时，需要高效的检索机制。常用方法包括：",
+        "- 基于语义相似度筛选相关工具（embedding + Top-K）",
+        "- 工具分组 + 层级选择",
+        "- 基于历史使用频率的动态排序",
+        "当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、",
+        "基于分类目录、以及混合检索等方法。"
+      ],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "kb-root": {
+      "id": "kb-root",
+      "title": "Agent 开发技术知识库",
+      "abstract": "AI Agent 开发技术全景知识体系，按本体分类组织。",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "overview"
+      ],
+      "category": "",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": null,
+      "children": [
+        "cat-architecture",
+        "cat-planning",
+        "cat-tool-calling",
+        "cat-memory",
+        "cat-multi-agent",
+        "cat-rag",
+        "cat-evaluation",
+        "cat-safety"
+      ],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-architecture": {
+      "id": "cat-architecture",
+      "title": "架构设计",
+      "abstract": "Agent 系统架构、核心能力要素、框架设计",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "architecture",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [
+        "architecture-技术演进趋势总结",
+        "architecture-ai-agent-核心能力要素",
+        "architecture-主流开发框架对比",
+        "architecture-基础设施演进"
+      ],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-planning": {
+      "id": "cat-planning",
+      "title": "规划与推理",
+      "abstract": "Agent 的任务规划、推理链、决策策略",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "planning",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-tool-calling": {
+      "id": "cat-tool-calling",
+      "title": "工具调用",
+      "abstract": "Function Calling、MCP、工具选择与编排",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "tool-calling",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [
+        "tool-calling-工具调用技术"
+      ],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-memory": {
+      "id": "cat-memory",
+      "title": "记忆系统",
+      "abstract": "短期/长期记忆、向量检索、上下文管理",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "memory",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [
+        "memory-记忆系统"
+      ],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-multi-agent": {
+      "id": "cat-multi-agent",
+      "title": "多智能体协作",
+      "abstract": "多 Agent 角色分工、通信、编排",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "multi-agent",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-rag": {
+      "id": "cat-rag",
+      "title": "RAG 与知识增强",
+      "abstract": "检索增强生成、分块、重排序、索引",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "rag",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [
+        "rag-rag-检索增强生成"
+      ],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-evaluation": {
+      "id": "cat-evaluation",
+      "title": "评估与评测",
+      "abstract": "Benchmark、评测方法、质量度量",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "evaluation",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
+    "cat-safety": {
+      "id": "cat-safety",
+      "title": "安全与对齐",
+      "abstract": "护栏、RLHF/DPO、红队测试",
+      "content": "",
+      "priority": 1,
+      "tags": [
+        "category"
+      ],
+      "category": "safety",
+      "l2_category": "",
+      "source_file": "system",
+      "source_section": "",
+      "parent_id": "kb-root",
+      "children": [],
+      "references": [],
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
+    },
     "architecture-ai-agent-核心能力要素": {
       "id": "architecture-ai-agent-核心能力要素",
       "title": "AI Agent 核心能力要素",
@@ -17,7 +490,7 @@
       "l2_category": "",
       "source_file": "agent-tech-2024.md",
       "source_section": "AI Agent 核心能力要素",
-      "parent_id": null,
+      "parent_id": "cat-architecture",
       "children": [
         "感知与理解",
         "规划与决策",
@@ -27,8 +500,8 @@
         "现代AI Agent系统需要具备以下核心能力：感知环境、规划推理、工具调用、",
         "记忆管理、多模态交互等。这些能力要素共同构成了Agent的\"操作系统\"层。"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     },
     "architecture-主流开发框架对比": {
       "id": "architecture-主流开发框架对比",
@@ -46,7 +519,7 @@
       "l2_category": "",
       "source_file": "agent-tech-2024.md",
       "source_section": "主流开发框架对比",
-      "parent_id": null,
+      "parent_id": "cat-architecture",
       "children": [],
       "references": [
         "当前主流Agent开发框架可分为轻量级编排库和全栈平台两类。",
@@ -60,81 +533,8 @@
         "LangGraph通过有向图(DAG)来编排Agent的执行流程，每个节点代表一个状态，",
         "边代表状态转换。相比LangChain的链式调用，LangGraph更适合复杂的多步骤Agent。"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
-    },
-    "tool-calling-工具调用技术": {
-      "id": "tool-calling-工具调用技术",
-      "title": "工具调用技术",
-      "abstract": "工具调用(原Function Calling)是Agent连接外部世界的桥梁。",
-      "content": "工具调用(原Function Calling)是Agent连接外部世界的桥梁。",
-      "priority": 2,
-      "tags": [],
-      "category": "tool-calling",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "工具调用技术",
-      "parent_id": null,
-      "children": [
-        "function-calling-基础",
-        "mcp-协议",
-        "工具选择策略"
-      ],
-      "references": [
-        "工具调用(原Function Calling)是Agent连接外部世界的桥梁。"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
-    },
-    "rag-rag-检索增强生成": {
-      "id": "rag-rag-检索增强生成",
-      "title": "RAG 检索增强生成",
-      "abstract": "RAG 技术从 2023 年的基础检索方案演进到 2025 年的 Agentic RAG。",
-      "content": "RAG是解决LLM知识截止和幻觉问题的主流方案。\n\n---\n\nRAG 技术从 2023 年的基础检索方案演进到 2025 年的 Agentic RAG。",
-      "priority": 1,
-      "tags": [
-        "beginner"
-      ],
-      "category": "rag",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "RAG 检索增强生成",
-      "parent_id": null,
-      "children": [
-        "分块策略",
-        "检索与重排序",
-        "检索策略"
-      ],
-      "references": [
-        "RAG是解决LLM知识截止和幻觉问题的主流方案。",
-        "RAG 技术从 2023 年的基础检索方案演进到 2025 年的 Agentic RAG。"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
-    },
-    "memory-记忆系统": {
-      "id": "memory-记忆系统",
-      "title": "记忆系统",
-      "abstract": "Agent 记忆系统是 20242025 年 Agent 技术栈中变化最快的领域之一。",
-      "content": "Agent的记忆系统决定了其持续对话和个性化能力。\n\n---\n\nAgent 记忆系统是 2024-2025 年 Agent 技术栈中变化最快的领域之一。",
-      "priority": 2,
-      "tags": [],
-      "category": "memory",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "记忆系统",
-      "parent_id": null,
-      "children": [
-        "短期记忆",
-        "长期记忆",
-        "记忆整合策略"
-      ],
-      "references": [
-        "Agent的记忆系统决定了其持续对话和个性化能力。",
-        "Agent 记忆系统是 2024-2025 年 Agent 技术栈中变化最快的领域之一。"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     },
     "architecture-基础设施演进": {
       "id": "architecture-基础设施演进",
@@ -152,7 +552,7 @@
       "l2_category": "",
       "source_file": "agent-tech-2024.md",
       "source_section": "基础设施演进",
-      "parent_id": null,
+      "parent_id": "cat-architecture",
       "children": [],
       "references": [
         "Agent基础设施正从\"拼凑式\"向\"平台化\"演进。",
@@ -162,35 +562,8 @@
         "- **2025**: Agent原生基础设施（AgentOS, Agent-native DB）",
         "容器化部署、GPU资源调度、观测性(Observability)成为Agent基础设施的三大支柱。"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
-    },
-    "architecture-技术演进趋势总结": {
-      "id": "architecture-技术演进趋势总结",
-      "title": "技术演进趋势总结",
-      "abstract": "1. 记忆从外挂向量库向模型原生能力演进",
-      "content": "1. **从CoT到Agentic Workflow**: 单次推理 → 多步自主执行\n2. **工具标准化**: MCP协议推动工具生态统一\n3. **记忆原生化**: 从外挂向量库到模型原生记忆能力\n4. **多Agent协作**: 从单体Agent到Agent团队\n5. **安全对齐**: RLHF/DPO + 护栏机制成为标配\n\n---\n\n1. 记忆从外挂向量库向模型原生能力演进\n2. RAG 从单步检索向多步自主检索演进\n3. 工具调用从单次调用向并行+流式演进\n4. 检索质量从粗排向精排+纠错演进",
-      "priority": 2,
-      "tags": [],
-      "category": "architecture",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "技术演进趋势总结",
-      "parent_id": null,
-      "children": [],
-      "references": [
-        "1. **从CoT到Agentic Workflow**: 单次推理 → 多步自主执行",
-        "2. **工具标准化**: MCP协议推动工具生态统一",
-        "3. **记忆原生化**: 从外挂向量库到模型原生记忆能力",
-        "4. **多Agent协作**: 从单体Agent到Agent团队",
-        "5. **安全对齐**: RLHF/DPO + 护栏机制成为标配",
-        "1. 记忆从外挂向量库向模型原生能力演进",
-        "2. RAG 从单步检索向多步自主检索演进",
-        "3. 工具调用从单次调用向并行+流式演进",
-        "4. 检索质量从粗排向精排+纠错演进"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     },
     "感知与理解": {
       "id": "感知与理解",
@@ -210,8 +583,8 @@
         "意图识别、上下文窗口管理等。最新的大模型已经具备强大的上下文理解能力，",
         "但在长对话和复杂任务中仍面临挑战。"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     },
     "规划与决策": {
       "id": "规划与决策",
@@ -236,8 +609,8 @@
         "ReAct(Reasoning + Acting)范式将推理和行动交替进行，每一轮推理后执行工具调用，",
         "观察结果再继续推理。这种模式在LangChain和LangGraph中得到广泛应用。"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     },
     "工具使用": {
       "id": "工具使用",
@@ -255,38 +628,8 @@
       "references": [
         "工具调用让Agent能够突破LLM的文本边界，与外部世界交互。"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
-    },
-    "function-calling-基础": {
-      "id": "function-calling-基础",
-      "title": "Function Calling 基础",
-      "abstract": "2025 年的 Function Calling 已支持：",
-      "content": "\nLLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。\nOpenAI在2023年6月首次推出，此后Anthropic、Google等厂商也相继支持。\n\n典型流程：用户输入 → LLM解析意图 → 返回function_call JSON → 执行函数 → \n将结果返回LLM → 生成最终回复。\n\n---\n\n2025 年的 Function Calling 已支持：\n- 并行工具调用：一次返回多个 tool_call，减少往返延迟\n- 结构化输出：JSON Mode / Structured Outputs 确保返回格式可靠\n- 工具调用流式：在 streaming 模式下逐步返回 tool_call 参数",
-      "priority": 1,
-      "tags": [
-        "function-calling",
-        "openai",
-        "beginner"
-      ],
-      "category": "tool-calling",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "Function Calling 基础",
-      "parent_id": "tool-calling-工具调用技术",
-      "children": [],
-      "references": [
-        "LLM通过Function Calling机制，可以根据用户输入自动选择并调用预定义的函数。",
-        "OpenAI在2023年6月首次推出，此后Anthropic、Google等厂商也相继支持。",
-        "典型流程：用户输入 → LLM解析意图 → 返回function_call JSON → 执行函数 →",
-        "将结果返回LLM → 生成最终回复。",
-        "2025 年的 Function Calling 已支持：",
-        "- 并行工具调用：一次返回多个 tool_call，减少往返延迟",
-        "- 结构化输出：JSON Mode / Structured Outputs 确保返回格式可靠",
-        "- 工具调用流式：在 streaming 模式下逐步返回 tool_call 参数"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     },
     "mcp-协议": {
       "id": "mcp-协议",
@@ -311,56 +654,8 @@
         "result = await client.call_tool(\"web_search\", {\"query\": \"AI trends 2024\"})",
         "```"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
-    },
-    "工具选择策略": {
-      "id": "工具选择策略",
-      "title": "工具选择策略",
-      "abstract": "当工具数量超过 50 个时，需要高效的检索机制。常用方法包括：",
-      "content": "当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、\n基于分类目录、以及混合检索等方法。\n\n---\n\n当工具数量超过 50 个时，需要高效的检索机制。常用方法包括：\n- 基于语义相似度筛选相关工具（embedding + Top-K）\n- 工具分组 + 层级选择\n- 基于历史使用频率的动态排序",
-      "priority": 2,
-      "tags": [],
-      "category": "tool-calling",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "工具选择策略",
-      "parent_id": "tool-calling-工具调用技术",
-      "children": [],
-      "references": [
-        "当Agent拥有大量工具时，需要高效的检索策略: 基于语义相似度、",
-        "基于分类目录、以及混合检索等方法。",
-        "当工具数量超过 50 个时，需要高效的检索机制。常用方法包括：",
-        "- 基于语义相似度筛选相关工具（embedding + Top-K）",
-        "- 工具分组 + 层级选择",
-        "- 基于历史使用频率的动态排序"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
-    },
-    "分块策略": {
-      "id": "分块策略",
-      "title": "分块策略",
-      "abstract": "最新的语义分块技术利用 embedding 模型的注意力权重来确定最佳切分点，",
-      "content": "文档分块(Chunking)直接影响检索质量。常用策略：\n\n- **固定大小**: 512/1024 tokens，简单但可能切断语义\n- **语义分块**: 基于句子边界和语义相似度动态切分\n- **层级分块**: 保持文档结构（标题-段落），适合研报类文档\n\n---\n\n最新的语义分块技术利用 embedding 模型的注意力权重来确定最佳切分点，\n相比固定大小分块，召回率提升 15-30%。",
-      "priority": 2,
-      "tags": [],
-      "category": "rag",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "分块策略",
-      "parent_id": "rag-rag-检索增强生成",
-      "children": [],
-      "references": [
-        "文档分块(Chunking)直接影响检索质量。常用策略：",
-        "- **固定大小**: 512/1024 tokens，简单但可能切断语义",
-        "- **语义分块**: 基于句子边界和语义相似度动态切分",
-        "- **层级分块**: 保持文档结构（标题-段落），适合研报类文档",
-        "最新的语义分块技术利用 embedding 模型的注意力权重来确定最佳切分点，",
-        "相比固定大小分块，召回率提升 15-30%。"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     },
     "检索与重排序": {
       "id": "检索与重排序",
@@ -382,112 +677,8 @@
         "两阶段检索已成标配：粗排(向量检索 Top-K) → 精排(Cross-encoder 重排序)。",
         "Cohere Rerank和BGE-Reranker是主流选择。"
       ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:07Z"
-    },
-    "短期记忆": {
-      "id": "短期记忆",
-      "title": "短期记忆",
-      "abstract": "短期记忆的核心挑战是上下文窗口的高效利用。最新研究提出了\"滑动窗口摘要压缩\"",
-      "content": "短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文\n仍面临\"迷失在中间\"(Lost in the Middle)问题。\n\n---\n\n短期记忆的核心挑战是上下文窗口的高效利用。最新研究提出了\"滑动窗口+摘要压缩\"\n的混合策略，在长对话中保持关键信息的可及性。\n\n\n关键技术点：\n- 滑动窗口 + 重要性评分，动态保留关键信息\n- 摘要模型（如 GPT-4 摘要能力）压缩历史上下文\n- Mem0 等记忆中间件提供了开箱即用的短期记忆方案",
-      "priority": 1,
-      "tags": [
-        "memory",
-        "short-term",
-        "context-window"
-      ],
-      "category": "memory",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "短期记忆",
-      "parent_id": "memory-记忆系统",
-      "children": [],
-      "references": [
-        "短期记忆即对话上下文窗口。128K tokens已成为主流模型标配，但长上下文",
-        "仍面临\"迷失在中间\"(Lost in the Middle)问题。",
-        "短期记忆的核心挑战是上下文窗口的高效利用。最新研究提出了\"滑动窗口+摘要压缩\"",
-        "的混合策略，在长对话中保持关键信息的可及性。",
-        "关键技术点：",
-        "- 滑动窗口 + 重要性评分，动态保留关键信息",
-        "- 摘要模型（如 GPT-4 摘要能力）压缩历史上下文",
-        "- Mem0 等记忆中间件提供了开箱即用的短期记忆方案"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
-    },
-    "长期记忆": {
-      "id": "长期记忆",
-      "title": "长期记忆",
-      "abstract": "长期记忆需要向量数据库（如 Pinecone、Milvus、Weaviate）作为存储后端。",
-      "content": "长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：\n向量数据库(Milvus/Pinecone)、知识图谱、以及Mem0等记忆中间件。\n\n\n\n---\n\n长期记忆需要向量数据库（如 Pinecone、Milvus、Weaviate）作为存储后端。\n关键是在海量记忆中快速检索相关信息。\n\n\n2025 年趋势：记忆原生化。模型本身开始具备原生记忆能力（如 Gemini 的\nContext Caching、Claude 的 Project Knowledge），减少对外部向量库的依赖。",
-      "priority": 1,
-      "tags": [
-        "memory",
-        "long-term",
-        "vector-retrieval"
-      ],
-      "category": "memory",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "长期记忆",
-      "parent_id": "memory-记忆系统",
-      "children": [],
-      "references": [
-        "长期记忆通过持久化存储实现跨会话的信息保留。关键技术包括：",
-        "向量数据库(Milvus/Pinecone)、知识图谱、以及Mem0等记忆中间件。",
-        "长期记忆需要向量数据库（如 Pinecone、Milvus、Weaviate）作为存储后端。",
-        "关键是在海量记忆中快速检索相关信息。",
-        "2025 年趋势：记忆原生化。模型本身开始具备原生记忆能力（如 Gemini 的",
-        "Context Caching、Claude 的 Project Knowledge），减少对外部向量库的依赖。"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
-    },
-    "记忆整合策略": {
-      "id": "记忆整合策略",
-      "title": "记忆整合策略",
-      "abstract": "记忆整合参考了人脑海马体的工作机制。从短期记忆中选择高重要性信息，",
-      "content": "从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。\n核心思想是模拟人脑的海马体记忆巩固过程。\n\n---\n\n记忆整合参考了人脑海马体的工作机制。从短期记忆中选择高重要性信息，\n经过摘要压缩后存入长期记忆存储。",
-      "priority": 2,
-      "tags": [],
-      "category": "memory",
-      "l2_category": "",
-      "source_file": "agent-tech-2024.md, agent-memory-rag-deep.md",
-      "source_section": "记忆整合策略",
-      "parent_id": "memory-记忆系统",
-      "children": [],
-      "references": [
-        "从短期到长期记忆的整合需要：重要性评分 → 摘要压缩 → 向量存储。",
-        "核心思想是模拟人脑的海马体记忆巩固过程。",
-        "记忆整合参考了人脑海马体的工作机制。从短期记忆中选择高重要性信息，",
-        "经过摘要压缩后存入长期记忆存储。"
-      ],
-      "created_at": "2026-06-16T11:14:07Z",
-      "updated_at": "2026-06-16T11:14:08Z"
-    },
-    "检索策略": {
-      "id": "检索策略",
-      "title": "检索策略",
-      "abstract": "除了传统的向量检索，近年出现了多种高级检索策略：",
-      "content": "除了传统的向量检索，近年出现了多种高级检索策略：\n- **Self-RAG**: 模型自主判断是否需要检索、检索什么、如何利用检索结果\n- **CRAG**: 检索后加入纠错机制，对检索结果进行质量评估\n- **Agentic RAG**: 多步检索，Agent 根据中间结果动态调整检索计划",
-      "priority": 3,
-      "tags": [
-        "advanced"
-      ],
-      "category": "rag",
-      "l2_category": "",
-      "source_file": "agent-memory-rag-deep.md",
-      "source_section": "检索策略",
-      "parent_id": "rag-rag-检索增强生成",
-      "children": [],
-      "references": [
-        "除了传统的向量检索，近年出现了多种高级检索策略：",
-        "- **Self-RAG**: 模型自主判断是否需要检索、检索什么、如何利用检索结果",
-        "- **CRAG**: 检索后加入纠错机制，对检索结果进行质量评估",
-        "- **Agentic RAG**: 多步检索，Agent 根据中间结果动态调整检索计划"
-      ],
-      "created_at": "2026-06-16T11:14:08Z",
-      "updated_at": "2026-06-16T11:14:08Z"
+      "created_at": "2026-06-17T01:21:15Z",
+      "updated_at": "2026-06-17T01:21:15Z"
     }
   }
 }

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass, field, asdict
 
-from kb_ontology import get_priority_info
+from kb_ontology import get_priority_info, ONTOLOGY, PRIORITY_LEVELS
 
 
 # ── 数据模型 ──────────────────────────────────────────────
@@ -184,6 +184,80 @@ class KnowledgeBase:
                 if incoming.id not in parent.children:
                     parent.children.append(incoming.id)
             return incoming.id
+
+    def ensure_category_tree(self) -> str:
+        """
+        确保分类层级存在：主根 → 8个分类节点。
+        将现有无分类根节点挂到对应分类下。
+        返回主根节点 ID。
+        """
+        ROOT_ID = "kb-root"
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        # 1. 确保主根节点存在
+        if ROOT_ID not in self.nodes:
+            root = KnowledgeNode(
+                id=ROOT_ID,
+                title="Agent 开发技术知识库",
+                abstract="AI Agent 开发技术全景知识体系，按本体分类组织。",
+                content="",
+                priority=1,
+                tags=["overview"],
+                source_file="system",
+                source_section="",
+                created_at=now,
+                updated_at=now,
+            )
+            self.nodes[ROOT_ID] = root
+
+        # 2. 确保 8 个分类节点存在
+        cat_ids: dict[str, str] = {}
+        for cat_key, cat_info in ONTOLOGY.items():
+            cat_node_id = f"cat-{cat_key}"
+            cat_ids[cat_key] = cat_node_id
+
+            if cat_node_id not in self.nodes:
+                cat_node = KnowledgeNode(
+                    id=cat_node_id,
+                    title=cat_info["label"],
+                    abstract=cat_info["description"],
+                    content="",
+                    priority=1,
+                    tags=["category"],
+                    category=cat_key,
+                    source_file="system",
+                    source_section="",
+                    parent_id=ROOT_ID,
+                    created_at=now,
+                    updated_at=now,
+                )
+                self.nodes[cat_node_id] = cat_node
+                # 加到主根的子节点
+                self.nodes[ROOT_ID].children.append(cat_node_id)
+
+        # 3. 将无父节点的概念节点（原 H2 根节点）挂到对应分类下
+        for node in list(self.nodes.values()):
+            if node.id == ROOT_ID or node.id.startswith("cat-"):
+                continue
+            # 只处理没有父节点、或父节点不在 KB 中的（即原来的根节点）
+            if node.parent_id and node.parent_id in self.nodes:
+                continue
+            # 子节点保留原有父子关系不动
+            
+            if node.category and node.category in cat_ids:
+                cat_node_id = cat_ids[node.category]
+                node.parent_id = cat_node_id
+                if node.id not in self.nodes[cat_node_id].children:
+                    self.nodes[cat_node_id].children.append(node.id)
+
+        # 4. 清理：移除分类节点的 children 中已不存在的引用
+        for cat_node_id in cat_ids.values():
+            if cat_node_id in self.nodes:
+                cat_node = self.nodes[cat_node_id]
+                cat_node.children = [c for c in cat_node.children if c in self.nodes]
+
+        self._save()
+        return ROOT_ID
 
     def filter_by_priority(self, level: int) -> list[KnowledgeNode]:
         return [n for n in self.nodes.values() if n.priority == level]

@@ -208,6 +208,8 @@ def cmd_import(kb: KnowledgeBase, args):
                         kb.add(n)
                 print(f"  📄 {fname}: {len(nodes)} 个知识点")
                 total += len(nodes)
+            if not args.dry_run:
+                kb.ensure_category_tree()
             action = "将导入" if args.dry_run else "已导入"
             print(f"\n📦 {action} {len(results)} 个文件，共 {total} 个知识点（独立模式）")
         else:
@@ -215,6 +217,7 @@ def cmd_import(kb: KnowledgeBase, args):
             if not args.dry_run:
                 for n in nodes:
                     kb.add(n)
+                kb.ensure_category_tree()
             action = "将导入" if args.dry_run else "已导入"
             print(f"📄 {filepath.name}: {action} {len(nodes)} 个知识点（独立模式）\n")
             for n in nodes:
@@ -272,6 +275,21 @@ def cmd_export(kb: KnowledgeBase, args):
     out_path = export_html(kb, output)
     print(f"✅ HTML 已导出: {out_path.resolve()}")
     print(f"   可在浏览器中打开查看")
+
+
+def cmd_reorganize(kb: KnowledgeBase, args):
+    """重建分类树层级：主根 → 8 个分类 → 概念节点。"""
+    root_id = kb.ensure_category_tree()
+    root = kb.get(root_id)
+    print(f"✅ 分类树已重建")
+    print(f"   主根: {root.title if root else '?'}")
+    cats = kb.get_children(root_id)
+    print(f"   分类: {len(cats)} 个")
+    for c in cats:
+        sub = kb.get_children(c.id)
+        print(f"     [{c.title}] → {len(sub)} 个概念节点")
+    print()
+    print(f"   💡 建议运行 python3 kb.py export 更新可视化")
 
 
 def cmd_setup(kb: KnowledgeBase, args):
@@ -532,6 +550,9 @@ def main():
     # setup
     sub.add_parser("setup", help="在新机器上注册此知识库到 Hermes Agent")
 
+    # reorganize
+    sub.add_parser("reorganize", help="重建分类树层级：主根 → 分类 → 概念")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -551,6 +572,7 @@ def main():
         "import": cmd_import,
         "export": cmd_export,
         "setup": cmd_setup,
+        "reorganize": cmd_reorganize,
     }
 
     if args.command in commands:

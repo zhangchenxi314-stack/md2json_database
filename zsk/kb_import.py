@@ -512,6 +512,8 @@ def import_and_merge(kb, filepath: str | Path,
             stats["new"] += 1
 
     kb._save()
+    # 重建分类层级（主根 → 分类 → 概念）
+    kb.ensure_category_tree()
     return stats
 
 
@@ -528,6 +530,7 @@ def import_directory_merge(kb, dirpath: str | Path,
         print(f"  📄 {md_file.name}: 合并 {s['merged']}, 新增 {s['new']}, 跳过 {s['skipped']}")
         for k in total:
             total[k] += s[k]
+    kb.ensure_category_tree()
     return total
 
 

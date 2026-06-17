@@ -310,6 +310,130 @@ def cmd_dedup(kb: KnowledgeBase, args):
     print(f"   💡 建议运行 python3 kb.py export 更新可视化")
 
 
+def cmd_build(kb: KnowledgeBase, args):
+    """
+    读取 reports/ 下所有研报，输出结构化分析供 Agent 智能构建知识库。
+    Agent 阅读此输出后，使用 kb.py add/edit 命令精确操作。
+    """
+    reports_dir = PROJECT_DIR / "reports"
+    md_files = sorted(reports_dir.glob("*.md"))
+
+    if not md_files:
+        print("❌ reports/ 目录下没有 MD 研报。请先放入研报文件。")
+        return
+
+    # ── 1. 当前 KB 状态 ──
+    print("=" * 65)
+    print("📊 当前知识库状态")
+    print("=" * 65)
+    s = kb.stats()
+    print(f"节点: {s['node_count']}    最大深度: {s['max_depth']}")
+    print()
+
+    root = kb.get("kb-root")
+    if root:
+        for cid in root.children:
+            cat = kb.get(cid)
+            if not cat:
+                continue
+            concepts = kb.get_children(cid)
+            names = [c.title for c in concepts]
+            print(f"  [{cat.title}] {len(concepts)} 个概念: {', '.join(names) if names else '(空)'}")
+    print()
+
+    # ── 2. 本体论 ──
+    print("=" * 65)
+    print("📂 本体分类体系（8 个一级分类）")
+    print("=" * 65)
+    for cat_id, cat_info in ONTOLOGY.items():
+        l2_list = cat_info.get("l2", [])
+        print(f"  {cat_id:20s} {cat_info['label']}")
+        print(f"  {'':20s} {cat_info['description']}")
+        if l2_list:
+            print(f"  {'':20s} 二级: {', '.join(l2_list)}")
+        print()
+    print()
+
+    # ── 3. 研报分析 ──
+    from kb_import import _parse_headings
+    print("=" * 65)
+    print(f"📄 研报分析（{len(md_files)} 份）")
+    print("=" * 65)
+
+    for md_file in md_files:
+        print(f"\n{'─' * 55}")
+        print(f"📄 {md_file.name}")
+        print(f"{'─' * 55}")
+
+        md_text = md_file.read_text(encoding="utf-8")
+        sections, refs = _parse_headings(md_text)
+
+        if not sections:
+            print("  （无标题结构）")
+            continue
+
+        for sec in sections:
+            indent = "  " * (sec["level"] - 1)
+            prefix = "#" * sec["level"]
+            title = sec["title"]
+
+            # 自动分类建议
+            from kb_ontology import map_section_to_category
+            auto_cat = map_section_to_category(title)
+            cat_hint = f"  ← 建议分类: {ONTOLOGY[auto_cat]['label']}" if auto_cat and auto_cat in ONTOLOGY else ""
+
+            # 检查是否已存在
+            exists = kb.find_by_title_category(title, auto_cat or "") if auto_cat else None
+            exist_hint = " ⚠ 已存在(将合并)" if exists else ""
+
+            # 内容预览
+            content = sec["content"].strip()
+            preview = content[:100].replace("\n", " ") + ("…" if len(content) > 100 else "")
+
+            print(f"{indent}{prefix} {title}{cat_hint}{exist_hint}")
+            if preview:
+                print(f"{indent}   📝 {preview}")
+
+            # 手动标注
+            ann = sec.get("annotations", {})
+            if ann:
+                print(f"{indent}   🏷 标注: {ann}")
+
+        if refs:
+            print(f"\n  📚 参考文献 ({len(refs)} 条)")
+
+    # ── 4. Agent 操作指引 ──
+    print(f"\n{'=' * 65}")
+    print("🤖 Agent 操作步骤")
+    print(f"{'=' * 65}")
+    print(f"""
+请依次完成：
+
+1. 阅读上方研报章节列表，为每个章节确定分类和优先级。
+   - 分类来自 8 个本体类: {', '.join(ONTOLOGY.keys())}
+   - 优先级: 1=核心基础 2=重要常用 3=一般了解 4=进阶深入 5=扩展选读
+
+2. 对每个需要导入的概念，用以下命令操作：
+
+   新增:  python3 {PROJECT_DIR}/kb.py add \\
+           --title "<概念名>" --category <分类ID> --priority <1-5> \\
+           --abstract "<一句话摘要>" --content "<正文>" --tags "tag1,tag2"
+
+   更新:  python3 {PROJECT_DIR}/kb.py edit <已有节点ID> \\
+           --priority <值> --content "<追加内容>"
+
+3. 概念合并规则：
+   - 已有节点（标注 ⚠已存在）→ 用 edit 追加内容，不要重复创建
+   - 无标注的 → 新增节点
+   - 不同报告中描述同一概念的 → 合并到一个节点下
+
+4. 全部操作完成后，执行收尾：
+   python3 {PROJECT_DIR}/kb.py reorganize
+   python3 {PROJECT_DIR}/kb.py dedup
+   python3 {PROJECT_DIR}/kb.py export
+""")
+
+
 def cmd_setup(kb: KnowledgeBase, args):
     """在新机器上注册此知识库到 Hermes Agent。"""
     skill_dir = Path.home() / ".hermes" / "skills" / "note-taking" / "zsk-knowledge-base"
@@ -574,6 +698,9 @@ def main():
     # dedup
     sub.add_parser("dedup", help="合并归一化标题相同的重复节点")
 
+    # build
+    sub.add_parser("build", help="读取研报并输出结构化分析，供 Agent 智能构建知识库")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -595,6 +722,7 @@ def main():
         "setup": cmd_setup,
         "reorganize": cmd_reorganize,
         "dedup": cmd_dedup,
+        "build": cmd_build,
     }
 
     if args.command in commands:

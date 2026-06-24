@@ -6,6 +6,7 @@
 **迭代：** v1.0 → v1.1 → v1.2 → v1.3 → v1.4（2026-06-16 ~ 2026-06-17）  
 **CLI：** 14 命令  
 **Skills：** zsk-knowledge-base + zsk-build  
+**当前 KB：** 28 节点，最大深度 4
 
 ---
 
@@ -15,7 +16,7 @@
 |----|---------|------------|------|
 | KR1.1 | 完成需求分析与系统设计，对齐 6 项关键决策 | REQUIREMENTS.md：本体分类体系（8 大类 × 5~6 子类）、JSON 数据模型（12 字段 KnowledgeNode）、导入策略（混合模式）、优先级 P1~P5、零跨树关系、完整 Markdown 渲染。用户确认全部 6 项后开始编码。 | 已完成 |
 | KR1.2 | 实现 MD 研报解析引擎：代码块安全处理 + 分类继承 | kb_import.py（550 行）。围栏检测跳过代码块内 `#`（误解析率 0）；H2→概念 / H3→子概念自动拆分；章节标题关键词映射 8 大分类；子节点自动继承父节点分类；三种导入模式：直接 / --dry-run / -i 交互式。 | 已完成 |
-| KR1.3 | 构建 JSON 知识库核心数据模型 + CLI 工具 | kb_core.py（341 行）+ kb.py（564 行）。KnowledgeNode 数据类 + KnowledgeBase CRUD；CLI 初始 11 个命令；kb_ontology.py：8 分类 × 5~6 二级分类 + 标签规范 + 优先级色标。验证：两份测试研报导入 → 20+13 节点，分类/父子/继承全部正确。 | 已完成 |
+| KR1.3 | 构建 JSON 知识库核心数据模型 + CLI 工具 | kb_core.py（523 行）+ kb.py（687 行）。KnowledgeNode 数据类 + KnowledgeBase CRUD；CLI 初始 11 个命令；kb_ontology.py：8 分类 × 5~6 二级分类 + 标签规范 + 优先级色标。验证：两份测试研报导入 → 20+13 节点，分类/父子/继承全部正确。 | 已完成 |
 | KR1.4 | 实现多报告合并导入，相同概念不分裂 | kb_core.merge_node()：按 category+title 匹配。命中→合并（内容追加、标签取并、优先级取最高、子节点去重、来源文件拼接）；未命中→新建。实测：2 份研报 33→19 节点，节省 42%。 | 已完成 |
 | KR1.5 | 实现跨机器可移植性：路径自感知 + 一键注册 | PROJECT_DIR = Path(\_\_file\_\_).resolve().parent（路径自感知）；kb.py setup 生成 ~/.hermes/skills/ 下的 skill，路径自动适配当前机器；移植：cp → pip install markdown → python3 kb.py setup → 完成；验证：cd /tmp && python3 /path/to/kb.py stats，任意目录正常调用。 | 已完成 |
 
@@ -27,7 +28,7 @@
 |----|---------|------------|------|
 | KR2.1 | 重构知识树层级：8 个平级根 → 1 个主根 + 8 个分类容器（深度 2→4） | 用户反馈三个问题：树太扁 / 缺主根 / 空节点无引导。kb_core.ensure_category_tree()（+91 行）：主根→分类容器→概念→子概念。踩坑：初版误移 H3 子节点导致父子断裂，加 parent_id 判断后修正。效果：根节点 8→1，最大深度 2→4。 | 已完成 |
 | KR2.2 | HTML 空白节点分级引导提示 | kb_export.py selectNode 函数（+15 行）：主根→"AI Agent 开发技术全景知识体系…"；分类容器→"此节点为【分类名】分类容器…"；容器节点→"此节点包含 N 个子知识点…"；叶子节点→"（暂无详细内容）"。用户感知从"空白"变为有意义的导览。 | 已完成 |
-| KR2.3 | HTML 可视化完整交付：搜索 / 色标 / 展开折叠 / Markdown / 响应式 | kb_export.py（468 行）单文件自包含：零外部 JS/CSS，JSON 内嵌 \<script\>，离线可用；vanilla JS：树渲染 + 实时搜索过滤 + 展开折叠；Python 侧 markdown 库预渲染 → HTML（代码高亮、表格）；移动端响应式布局。 | 已完成 |
+| KR2.3 | HTML 可视化完整交付：搜索 / 色标 / 展开折叠 / Markdown / 响应式 | kb_export.py（496 行）单文件自包含：零外部 JS/CSS，JSON 内嵌 \<script\>，离线可用；vanilla JS：树渲染 + 实时搜索过滤 + 展开折叠；Python 侧 markdown 库预渲染 → HTML（代码高亮、表格）；移动端响应式布局。 | 已完成 |
 
 ---
 
@@ -65,8 +66,49 @@
 | KR | 关键结果 | 度量 / 验证 | 状态 |
 |----|---------|------------|------|
 | KR6.1 | 每轮迭代输出独立优化报告（5 份） | OPTIMIZE_REPORT_V2 / V3 / V4 / V5 / FULL。每份报告结构：背景（触发场景 + 问题详述）→ 方案设计 → 实现细节 → 测试验证 → 影响范围（修改文件 + 不兼容变更）。 | 已完成 |
-| KR6.2 | 完整工程文档体系（4 份） | REQUIREMENTS.md：项目定位 + 6 项待确认问题 + 技术方案选型；DEV_REPORT.md（448 行）：需求回顾→系统架构→数据模型→关键实现细节→测试验证（10 项全通过）→使用指南→待优化项；RISKS.md：5 类 14 项风险；FEATURES.md：11 项功能概要。 | 已完成 |
+| KR6.2 | 完整工程文档体系（7 份） | REQUIREMENTS.md：项目定位 + 6 项待确认问题 + 技术方案选型；DEV_REPORT.md（448 行）：需求回顾→系统架构→数据模型→关键实现细节→测试验证→使用指南→待优化项；RISKS.md：5 类 14 项风险；FEATURES.md：11 项功能概要；MANUAL.md：完整使用说明书（11 节）；SYSTEM.md：系统架构文档（4 层分层 + 工作流 + 数据模型）；ARCHITECTURE_DIAGRAM_PROMPT.md：ASCII/Mermaid 双版本架构图提示词。 | 已完成 |
 | KR6.3 | 系统架构图提示词 | ARCHITECTURE_DIAGRAM_PROMPT.md：4 层分层结构 + ASCII 框图 + 数据流标注 + 8 分类元数据 + Mermaid 版本 + 配色建议。可直接粘贴给 AI 绘图工具生成系统框图。 | 已完成 |
+
+---
+
+## O7 [规划中] 待优化事项汇总
+
+> 来源：RISKS.md（14 项风险）、DEV_REPORT.md（6 项待优化）、代码审查、skill 注册副本同步
+
+### 功能增强
+
+| KR | 关键结果 | 参考来源 | 优先级 |
+|----|---------|---------|--------|
+| KR7.1 | 标题归一化扩展：除 agent/ai 前缀外，覆盖更多语言变体和缩写（如 RAG ↔ Retrieval-Augmented Generation） | RISKS.md §一、DEV_REPORT.md §八、README.md 已知限制 | P2 |
+| KR7.2 | 分类体系可扩展：8 个分类从硬编码改为配置文件驱动，支持"Agent 部署运维"等新领域 | RISKS.md §一，SYSTEM.md §九 | P2 |
+| KR7.3 | 标签自动提取增强：从关键词匹配升级为 TF-IDF 或 LLM 辅助提取 | DEV_REPORT.md §八-待优化 | P2 |
+| KR7.4 | Markdown 解析鲁棒性强化：处理嵌套代码块、非常规围栏写法 | RISKS.md §一 | P3 |
+
+### 性能优化
+
+| KR | 关键结果 | 参考来源 | 优先级 |
+|----|---------|---------|--------|
+| KR7.5 | JSON 增量更新：替代全量读写，支持节点上千时的性能保持 | RISKS.md §二、DEV_REPORT.md §八 | P2 |
+| KR7.6 | 全文搜索索引：O(n) 遍历升级为倒排索引，加速大数据量搜索 | DEV_REPORT.md §八 | P3 |
+| KR7.7 | 导入增量解析：build 模式缓存已解析章节，新增研报只解析增量部分 | RISKS.md §二 | P3 |
+| KR7.8 | HTML 大数据量优化：节点数多时分页或虚拟滚动，避免单文件几十 MB | RISKS.md §二 | P4 |
+
+### 数据安全
+
+| KR | 关键结果 | 参考来源 | 优先级 |
+|----|---------|---------|--------|
+| KR7.9 | 版本控制：JSON 知识库自动备份（如 `data/knowledge_base.json.bak`），误操作可回滚 | RISKS.md §三、DEV_REPORT.md §八 | P2 |
+| KR7.10 | 删除保护：delete 命令增加回收站机制（移动到 trash 而非直接删除） | RISKS.md §五 | P3 |
+| KR7.11 | 并发锁：多进程同时操作时的写入保护 | RISKS.md §三 | P4 |
+
+### 兼容性 / 运维
+
+| KR | 关键结果 | 参考来源 | 优先级 |
+|----|---------|---------|--------|
+| KR7.12 | Skill 源模板与注册副本同步：zsk-build skill 源模板（skills/zsk-build/SKILL.md）缺失 Prerequisites 节和 references/cross-machine-setup.md，需从注册副本（~/.hermes/skills/note-taking/zsk-build/）反向合并 | 代码审查 + memory | P2 |
+| KR7.13 | 导出为 Markdown：支持将 JSON 知识库反向导出为结构化 MD 文档 | DEV_REPORT.md §八 | P3 |
+| KR7.14 | Web 服务模式：`python3 kb.py serve` 启动本地 HTTP 服务，脱离文件系统浏览 | DEV_REPORT.md §八 | P4 |
+| KR7.15 | Windows hermes PATH 检测：build.bat 前置检查 hermes 是否在 PATH 中，不在则给出明确提示 | RISKS.md §四 | P3 |
 
 ---
 
@@ -79,5 +121,6 @@
 | O3 归一化与去重 | v1.2 | 2 | 2/2 | 6组跨写法测试通过，空摘要自动填充，去重自动化 |
 | O4 Agent智能构建 | v1.3 | 3 | 3/3 | build命令 + zsk-build skill + 一键脚本 |
 | O5 Windows+防护 | v1.4 | 3 | 3/3 | build.bat + import封锁 + skill嵌入 + AI命令参考 |
-| O6 工程文档 | — | 3 | 3/3 | 5轮优化报告 + 4份工程文档 + 架构图提示词 |
-| **合计** | **v1.0→v1.4** | **19** | **19/19** | **全部已完成** |
+| O6 工程文档 | — | 3 | 3/3 | 5轮优化报告 + 7份工程文档 + 架构图提示词 |
+| O7 待优化事项 | 规划中 | 15 | 0/15 | 功能增强(4) + 性能(4) + 安全(3) + 运维(4) |
+| **合计** | **v1.0→v1.4** | **34** | **19/34** | **19 已完成，15 待规划** |
